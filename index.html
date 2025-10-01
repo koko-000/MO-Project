@@ -9,11 +9,10 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    height: 100vh; /* เต็มหน้าจอ */
+    height: 100vh;
     display: flex;
     flex-direction: column;
 }
-
 /* ---------- Top Bar ---------- */
 .bar {
     display: flex;
@@ -27,164 +26,232 @@ body {
     top: 0;
     z-index: 999;
 }
+.bar h2 { margin: 0; }
+.bar-logo { height: 60px; padding: 0 20px; }
 
-.bar h2 {
-    margin: 0;
-}
-
-.bar-logo {
-    height: 60px;
-    padding: 0 20px;
-}
-
-/* ---------- Section Bar ---------- */
+/* ---------- Section Bar 3 Rows ---------- */
 .sectionbar-wrapper {
     position: sticky;
-    top: 60px; /* อยู่ใต้ Top Bar */
+    top: 60px;
     z-index: 998;
     background: #fff;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    padding: 0 10px;
 }
-
-.sectionbar {
+.sectionbar-row1 {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 5px 10px;
-    flex-wrap: nowrap;
-    white-space: nowrap;
-    overflow-x: auto; /* scroll ภายใน sectionbar */
+    padding: 8px 20px;
+    background: #f0f8ff;
+    border-bottom: 1px solid #e0e0e0;
+    min-height: 40px;
+    flex-wrap: wrap;
 }
-
-.sectionbar select,
-.sectionbar input {
-    border-radius: 4px;
-    padding: 4px 8px;
+.active-filters-label { font-weight: bold; color: #2c88ff; margin-right: 10px; }
+.active-filter-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: #897cff;
+    color: white;
+    border-radius: 15px;
+    font-size: 13px;
 }
-
-.sectionbar .search-box {
-    margin-left: auto;
+.no-active-filters { color: #999; font-style: italic; font-size: 14px; }
+.sectionbar-row2, .sectionbar-row3 {
     display: flex;
     align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
 }
+.sectionbar-row2 label, .sectionbar-row3 label { white-space: nowrap; font-size: 14px; font-weight: 500; }
+
+.search-box-row2 { margin-left: auto; display: flex; align-items: center; }
+.search-box-row2 input { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px; }
+
+.search-box-row3 { margin-left: auto; display: flex; align-items: center; }
+.search-box-row3 input { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px; }
+
+/* ---------- Searchable Dropdown Styles ---------- */
+.searchable-dropdown { position: relative; display: inline-block; min-width: 120px; }
+.dropdown-button {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 90%; padding: 4px 8px; border: 1px solid #ccc;
+    border-radius: 4px; background: white; cursor: pointer; font-size: 14px;
+}
+.dropdown-button:hover { background: #f5f5f5; }
+.dropdown-arrow { margin-left: 8px; font-size: 12px; transition: transform 0.2s; }
+.dropdown-arrow.open { transform: rotate(180deg); }
+.dropdown-content {
+    position: fixed;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    z-index: 2000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.dropdown-content.open { display: block; }
+.dropdown-search { width: 100%; padding: 8px; border: none; border-bottom: 1px solid #eee; outline: none; font-size: 14px; box-sizing: border-box; }
+.dropdown-options { max-height: 250px; overflow-y: auto; }
+.dropdown-option { padding: 8px 12px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+.dropdown-option:hover { background: #f0f8ff; }
+.dropdown-option:last-child { border-bottom: none; }
+.dropdown-option.selected { background: #2c88ff; color: white; }
+
+/* Date inputs */
+input[type="date"] { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
 
 /* ---------- Summary ---------- */
-.summary-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  margin-top: 5px;
-}
-
-.summary-box {
-    background: #fff;
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid #000000;
-    font-weight: bold;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
+.summary-bar { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 20px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.summary-box { background: #fff; padding: 6px 12px; border-radius: 6px; border: 1px solid #000000; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 
 /* ---------- Table ---------- */
-.table-container {
-    flex: 1; /* ขยายเต็มพื้นที่ที่เหลือ */
-    overflow: auto; /* scroll แนวนอนและแนวตั้ง */
-    padding: 0 10px;
-}
-
-table {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 6px;
-    font-size: 14px;
-}
-
-th {
-    background: #2c88ff;
-    color: white;
-    position: sticky;
-    top: 0; /* header sticky */
-    z-index: 10;
-}
-
-tr:nth-child(even) {
-    background: #f0f8ff;
-}
-
-tr:hover {
-    background: #e9e9e9;
-}
-
-.highlight {
-    background-color: yellow;
-    font-weight: bold;
-}
+.table-container { flex: 1; overflow: auto; padding: 0 20px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ddd; padding: 6px; font-size: 14px; }
+th { background: #2c88ff; color: white; position: sticky; top: 0; z-index: 10; }
+tr:nth-child(even) { background: #f0f8ff; }
+tr:hover { background: #e9e9e9; }
+.highlight { background-color: yellow; font-weight: bold; }
 
 /* ---------- Buttons ---------- */
-button {
-    padding: 5px 10px;
-    border-radius: 4px;
-    border: none;
-    background: #2c88ff;
-    color: white;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #1860c0;
-}
+button { padding: 5px 10px; border-radius: 4px; border: none; background: #2c88ff; color: white; cursor: pointer; font-size: 14px; }
+button:hover { background: #1860c0; }
 </style>
 </head>
 
 <body>
-<!-- ---------- Top Bar ---------- -->
 <div class="bar">
     <h2>📋MO Dashboard</h2>
     <img src="static/minebeamitsumi.png" alt="Logo" class="bar-logo">
 </div>
 
-<!-- ---------- Section Bar + Summary ---------- -->
 <div class="sectionbar-wrapper">
-    <div class="sectionbar">
-        <!-- Filters -->
-        <label for="DO">📒DO:</label>
-        <select id="DO"><option value="">--NONE--</option></select>
-
-        <label for="MO">📋MO:</label>
-        <select id="MO"><option value="">--NONE--</option></select>
-
-        <label for="dateColumn">📝Trace From:</label>
-        <select id="dateColumn"><option value="">--NONE--</option></select>
-
-        <label for="traceBy">🗒️Trace By:</label>
-        <select id="traceBy"><option value="">--NONE--</option></select>
-        <select id="traceByValue"><option value="">--Select Value--</option></select>
-
-        📅
-        <input type="date" id="dateStart">
-        <input type="date" id="dateEnd">
-
+    <div class="sectionbar-row1" >
+          <div id="activeFiltersRow">
+            <span class="active-filters-label">Active Filters:</span>
+            <span class="no-active-filters">No filters selected</span>
+          </div>
         <button id="clearBtn">Clear Filters</button>
-
-        <div class="search-box">
+    </div>
+    <div class="sectionbar-row2">
+        <!-- Section (disabled for now) -->
+        <label for="Section">🗂️Section:</label>
+        <div class="searchable-dropdown" id="Section-dropdown" style="opacity: 0.5; pointer-events: none;">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search Section...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+        <!-- Trace From Filter -->
+        <label for="tracefrom">📍Trace From:</label>
+        <div class="searchable-dropdown" id="tracefrom-dropdown">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search Trace From...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+         <!-- Trace By Filter -->
+        <label for="traceBy">🗑️Trace By:</label>
+        <div class="searchable-dropdown" id="traceBy-dropdown" style="opacity: 0.5; pointer-events: none;">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search Trace By...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+        <!-- Trace By Value -->
+        <div class="searchable-dropdown" id="traceByValue-dropdown" style="opacity: 0.5; pointer-events: none;">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search Value...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+        <!-- Search Box -->
+        <div class="search-box-row2">
             <input type="text" id="searchInput" placeholder="🔍Search...">
         </div>
     </div>
-    <!-- Summary -->
-    <div id="summaryBar" class="summary-bar"></div>
+
+    <div class="sectionbar-row3">
+        <!-- DO Filter -->
+        <label for="DO">🔑DO:</label>
+        <div class="searchable-dropdown" id="DO-dropdown">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search DO...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+
+        <!-- MO Filter -->
+        <label for="MO">📋MO:</label>
+        <div class="searchable-dropdown" id="MO-dropdown" style="opacity: 0.5; pointer-events: none;">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search MO...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+
+        <!-- REF TYPE Filter -->
+        <label for="reftype">📖REF TYPE:</label>
+        <div class="searchable-dropdown" id="reftype-dropdown">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search REF TYPE...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+
+        <!-- DateType Filter -->
+        <label for="dateColumn">⏰DateType:</label>
+        <div class="searchable-dropdown" id="dateColumn-dropdown">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search Date Column...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+
+        <!-- Process Filter -->
+        <label for="process">🔐Process:</label>
+        <div class="searchable-dropdown" id="process-dropdown" style="opacity: 0.5; pointer-events: none;">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search process...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+
+        <!-- Process Value -->
+        <div class="searchable-dropdown" id="processValue-dropdown" style="opacity: 0.5; pointer-events: none;">
+            <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+            <div class="dropdown-content">
+                <input type="text" class="dropdown-search" placeholder="Search Value...">
+                <div class="dropdown-options"></div>
+            </div>
+        </div>
+
+        <!-- Date Range -->
+        <span>📅</span>
+        <input type="date" id="dateStart">
+        <input type="date" id="dateEnd">
+        
+    </div>
 </div>
 
-<!-- ---------- Table ---------- -->
+<div id="summaryBar" class="summary-bar"></div>
+
 <div class="table-container">
     <table id="dataTable">
         <thead id="tableHead"></thead>
@@ -193,41 +260,246 @@ button:hover {
 </div>
 
 <script>
-let rawData = [];
-let filteredData = [];
+let rawData = [], filteredData = [];
 
-/* ---------- Load CSV ---------- */
-Papa.parse("static/Maindata%202.csv", {
-    download: true,
-    header: true,
-    complete: function(results) {
-        rawData = results.data;
-        filteredData = rawData;
-        renderDateOptions(results.meta.fields);
-        renderTraceByColumns(filteredData, "");
-        renderDOOptions(filteredData);
-        renderMOOptions(filteredData);
-        renderTable(filteredData);
+// ---------- Searchable Dropdown ----------
+class SearchableDropdown {
+    constructor(element,onChange){
+        this.element=element; this.onChange=onChange; this.selectedValue=""; this.options=[]; this.filteredOptions=[];
+        this.button=element.querySelector('.dropdown-button'); this.content=element.querySelector('.dropdown-content');
+        this.search=element.querySelector('.dropdown-search'); this.optionsContainer=element.querySelector('.dropdown-options');
+        this.arrow=element.querySelector('.dropdown-arrow'); this.span=element.querySelector('.dropdown-button span');
+        this.setupEventListeners();
     }
-});
+    setupEventListeners(){
+        this.button.addEventListener('click',e=>{ e.stopPropagation(); this.toggle(); });
+        this.search.addEventListener('input', e=> this.filterOptions(e.target.value));
+        document.addEventListener('click', e=>{ if(!this.element.contains(e.target)) this.close(); });
+        this.content.addEventListener('click', e=> e.stopPropagation());
+    }
+    toggle(){ this.content.classList.contains('open')?this.close():this.open(); }
+    open(){
+        document.querySelectorAll('.dropdown-content.open').forEach(c=>{ c.classList.remove('open'); c.parentElement.querySelector('.dropdown-arrow').classList.remove('open'); });
+        this.content.classList.add('open'); this.arrow.classList.add('open');
+        const rect=this.button.getBoundingClientRect();
+        this.content.style.top=`${rect.bottom + window.scrollY}px`;
+        this.content.style.left=`${rect.left + window.scrollX}px`;
+        this.content.style.width=`${rect.width}px`;
+        this.search.focus(); this.search.value=''; this.filterOptions('');
+    }
+    close(){ this.content.classList.remove('open'); this.arrow.classList.remove('open'); }
+    setOptions(options){ this.options=["No Filter",...options]; this.filteredOptions=[...this.options]; this.renderOptions(); }
+    filterOptions(searchText){ const text=searchText.toLowerCase(); this.filteredOptions=this.options.filter(o=>o.toLowerCase().includes(text)); this.renderOptions(); }
+    renderOptions(){ this.optionsContainer.innerHTML=''; this.filteredOptions.forEach(o=>{ const div=document.createElement('div'); div.className='dropdown-option'; div.textContent=o; if(o===this.selectedValue||(o==="No Filter"&&!this.selectedValue)) div.classList.add('selected'); div.addEventListener('click',()=>this.selectOption(o)); this.optionsContainer.appendChild(div); }); }
+    selectOption(option){ this.selectedValue=option==="No Filter"?"":option; this.span.textContent=option; this.close(); if(this.onChange) this.onChange(this.selectedValue); updateActiveFiltersDisplay(); }
+    getValue(){ return this.selectedValue; }
+    setValue(value){ this.selectedValue=value; this.span.textContent=value||"No Filter"; this.renderOptions(); }
+    enable(){ this.element.style.opacity='1'; this.element.style.pointerEvents='auto'; }
+    disable(){ this.element.style.opacity='0.5'; this.element.style.pointerEvents='none'; this.setValue(""); }
+    clear(){ this.setValue(""); this.setOptions([]); }
+}
+
+// ---------- Initialize Dropdowns ----------
+let dropdowns = {};
+Papa.parse("static/Maindata_2.csv",{download:true,header:true,complete:function(results){
+    rawData=results.data; filteredData=rawData;
+    initializeDropdowns();
+    renderDateOptions(results.meta.fields);
+    renderDOOptions(filteredData);
+    renderRefTypeOptions(filteredData);
+    renderTraceFromOptions(filteredData);
+    renderTable(filteredData);
+}});
+
+function initializeDropdowns() {
+    dropdowns.DO = new SearchableDropdown(
+        document.getElementById('DO-dropdown'),
+        value => {
+            dropdowns.DO.setValue(value);
+            renderMOOptions(rawData, value);
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.MO = new SearchableDropdown(
+        document.getElementById('MO-dropdown'),
+        value => {
+            dropdowns.MO.setValue(value);
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.reftype = new SearchableDropdown(
+        document.getElementById('reftype-dropdown'),
+        value => {
+            dropdowns.reftype.setValue(value);
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.dateColumn = new SearchableDropdown(
+        document.getElementById('dateColumn-dropdown'),
+        value => {
+            dropdowns.dateColumn.setValue(value);
+            renderTraceByColumns(filteredData, value);
+            renderProcessColumns(filteredData, value);
+            dropdowns.traceBy.clear();
+            dropdowns.traceBy.disable();
+            dropdowns.traceByValue.clear();
+            dropdowns.traceByValue.disable();
+            dropdowns.process.clear();
+            dropdowns.process.disable();
+            dropdowns.processValue.clear();
+            dropdowns.processValue.disable();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.tracefrom = new SearchableDropdown(
+        document.getElementById('tracefrom-dropdown'),
+        value => {
+            dropdowns.tracefrom.setValue(value);
+            renderTraceFromValueOptions(filteredData, value);
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.traceBy = new SearchableDropdown(
+        document.getElementById('traceBy-dropdown'),
+        value => {
+            dropdowns.traceBy.setValue(value);
+            if (value) {
+                renderTraceByOptions(filteredData, value);
+            } else {
+                dropdowns.traceByValue.clear();
+                dropdowns.traceByValue.disable();
+            }
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.traceByValue = new SearchableDropdown(
+        document.getElementById('traceByValue-dropdown'),
+        value => {
+            dropdowns.traceByValue.setValue(value);
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.process = new SearchableDropdown(
+        document.getElementById('process-dropdown'),
+        value => {
+            dropdowns.process.setValue(value);
+            if (value) {
+                renderProcessValueOptions(filteredData, value);
+            } else {
+                dropdowns.processValue.clear();
+                dropdowns.processValue.disable();
+            }
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.processValue = new SearchableDropdown(
+        document.getElementById('processValue-dropdown'),
+        value => {
+            dropdowns.processValue.setValue(value);
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    // Initially disable dependent dropdowns
+    dropdowns.MO.disable();
+    dropdowns.traceBy.disable();
+    dropdowns.traceByValue.disable();
+    dropdowns.process.disable();
+    dropdowns.processValue.disable();
+}
+
+// ---------- Update Active Filters ----------
+function updateActiveFiltersDisplay() {
+    const row = document.getElementById('activeFiltersRow');
+    row.innerHTML = '<span class="active-filters-label">Active Filters:</span>';
+    const activeFilters = [];
+
+    ['DO','MO','reftype','dateColumn','tracefrom','traceBy','traceByValue','process','processValue'].forEach(f=>{
+        if(dropdowns[f] && dropdowns[f].getValue()) {
+            let label = f;
+            if(f==='DO') label='DO';
+            else if(f==='MO') label='MO';
+            else if(f==='reftype') label='REF TYPE';
+            else if(f==='dateColumn') label='DateType';
+            else if(f==='tracefrom') label='Trace From';
+            else if(f==='traceBy') label='Trace By';
+            else if(f==='traceByValue') label='Trace By Value';
+            else if(f==='process') label='Process';
+            else if(f==='processValue') label='Process Value';
+
+            activeFilters.push({label: label, value: dropdowns[f].getValue()});
+        }
+    });
+
+    const dateStart = document.getElementById('dateStart').value;
+    const dateEnd = document.getElementById('dateEnd').value;
+    if(dateStart || dateEnd){
+        activeFilters.push({label:'Date', value: dateStart && dateEnd ? `${dateStart} to ${dateEnd}` : dateStart ? `From ${dateStart}` : `Until ${dateEnd}`});
+    }
+
+    const searchTerm = document.getElementById('searchInput').value;
+    if(searchTerm) activeFilters.push({label:'Search', value: searchTerm});
+
+    if(activeFilters.length > 0){
+        activeFilters.forEach(f=>{
+            const div = document.createElement('div');
+            div.className = 'active-filter-item';
+            div.innerHTML = `<strong>${f.label}:</strong> ${f.value}`;
+            row.appendChild(div);
+        });
+    } else {
+        const span = document.createElement('span');
+        span.className = 'no-active-filters';
+        span.textContent = 'No filters selected';
+        row.appendChild(span);
+    }
+}
 
 /* ---------- Render & Filter Functions ---------- */
 function renderDateOptions(columns){
-    const dateSelect = document.getElementById("dateColumn");
-    dateSelect.innerHTML = `<option value="">--NONE--</option>`;
-    columns.filter(col => col.toUpperCase().includes("DATE"))
-           .forEach(col => {
-               const opt = document.createElement("option");
-               opt.value = col;
-               opt.textContent = col;
-               dateSelect.appendChild(opt);
-           });
+    const dateColumns = columns.filter(col => col.toUpperCase().includes("DATE"));
+    dropdowns.dateColumn.setOptions(dateColumns);
+}
+
+function renderTraceFromOptions(data){
+    const columns = Object.keys(data[0]);
+    const lotColumns = columns.filter(c => c.includes("LOT NO."));
+    dropdowns.tracefrom.setOptions(lotColumns);
+}
+
+function renderTraceFromValueOptions(data, column){
+    if(!column || data.length===0) return;
+    const uniqueValues = [...new Set(data.map(d=>d[column]).filter(v=>v && v.trim()))].sort();
+    // For trace from, we don't need a separate value dropdown - just filter by the column itself
 }
 
 function renderTraceByColumns(data, dateCol){
-    const traceBySelect = document.getElementById("traceBy");
-    traceBySelect.innerHTML = `<option value="">--NONE--</option>`;
-    if(data.length === 0) return;
+    let previousTraceBy = dropdowns.traceBy.getValue();
+    let previousTraceByValue = dropdowns.traceByValue.getValue();
+
+    dropdowns.traceBy.clear();
+    dropdowns.traceBy.disable();
+    dropdowns.traceByValue.clear();
+    dropdowns.traceByValue.disable();
+
+    if(!dateCol || data.length === 0) return;
 
     let columns = Object.keys(data[0]);
     let startKey=null, endKey=null;
@@ -242,162 +514,33 @@ function renderTraceByColumns(data, dateCol){
     if(startKey && endKey) columns = getColumnsBetween(Object.keys(data[0]), startKey, endKey);
 
     const traceable = columns.filter(c => 
-        c.includes("ITEM NO.") || c.includes("REF TYPE") || c.includes("OPERATOR NAME")
+        c.includes("ITEM NO.") || c.includes("REF NO.") || c.includes("OPERATOR NAME")
     );
 
-    traceable.forEach(col => {
-        const opt = document.createElement("option");
-        opt.value = col;
-        opt.textContent = col;
-        traceBySelect.appendChild(opt);
-    });
-}
+    if(traceable.length > 0) {
+        dropdowns.traceBy.setOptions(traceable);
+        dropdowns.traceBy.enable();
 
-function renderTraceByOptions(data, column){
-    const traceByValueSelect = document.getElementById("traceByValue");
-    traceByValueSelect.innerHTML = `<option value="">--Select Value--</option>`;
-    if(!column || data.length===0) return;
-
-    const dateCol = document.getElementById("dateColumn").value;
-    let uniqueValues = [];
-
-    if(column === "OPERATOR NAME") {
-        if(dateCol === "INV DATE") uniqueValues = data.map(d=>d["OPERATOR NAME"]);
-        else if(dateCol === "PRO DATE") uniqueValues = data.map(d=>d["OPERATOR NAME_4"]);
-        else if(dateCol === "DATE") uniqueValues = data.map(d=>d["OPERATOR NAME_5"]);
-    } else uniqueValues = data.map(d=>d[column]);
-
-    uniqueValues = [...new Set(uniqueValues.filter(v=>v && v.trim()))].sort();
-    uniqueValues.forEach(val=>{
-        const opt = document.createElement("option");
-        opt.value = val;
-        opt.textContent = val;
-        traceByValueSelect.appendChild(opt);
-    });
-}
-
-function renderDOOptions(data){
-    const doSelect = document.getElementById("DO");
-    doSelect.innerHTML = `<option value="">--NONE--</option>`;
-    const uniqueDO = [...new Set(data.map(d => d["INVOICE"]).filter(v => v && v.trim()))].sort();
-    uniqueDO.forEach(val => {
-        const opt = document.createElement("option");
-        opt.value = val;
-        opt.textContent = val;
-        doSelect.appendChild(opt);
-    });
-}
-
-function renderMOOptions(data){
-    const moSelect = document.getElementById("MO");
-    moSelect.innerHTML = `<option value="">--NONE--</option>`;
-    const uniqueMO = [...new Set(data.map(d => d["M/O NO."]).filter(v => v && v.trim()))].sort();
-    uniqueMO.forEach(val => {
-        const opt = document.createElement("option");
-        opt.value = val;
-        opt.textContent = val;
-        moSelect.appendChild(opt);
-    });
-}
-
-/* ---------- Event Listeners ---------- */
-document.getElementById("traceBy").addEventListener("change", function(){
-    const col = this.value;
-    if(col) renderTraceByOptions(filteredData, col);
-    else document.getElementById("traceByValue").innerHTML = `<option value="">--Select Value--</option>`;
-});
-
-document.getElementById("dateColumn").addEventListener("change", function(){
-    renderTraceByColumns(filteredData, this.value);
-    document.getElementById("traceBy").value = "";
-    document.getElementById("traceByValue").innerHTML=`<option value="">--Select Value--</option>`;
-    applyFilters();
-});
-
-document.getElementById("traceByValue").addEventListener("change", applyFilters);
-document.getElementById("dateStart").addEventListener("change", applyFilters);
-document.getElementById("dateEnd").addEventListener("change", applyFilters);
-document.getElementById("DO").addEventListener("change", applyFilters);
-document.getElementById("MO").addEventListener("change", applyFilters);
-document.getElementById("searchInput").addEventListener("input", applyFilters);
-
-/* ---------- Clear Filters Function ---------- */
-document.getElementById("clearBtn").addEventListener("click", clearFilters);
-
-function clearFilters(){
-    document.getElementById("DO").value = "";
-    document.getElementById("MO").value = "";
-    document.getElementById("dateColumn").value = "";
-    document.getElementById("traceBy").value = "";
-    document.getElementById("traceByValue").innerHTML = `<option value="">--Select Value--</option>`;
-    document.getElementById("dateStart").value = "";
-    document.getElementById("dateEnd").value = "";
-    document.getElementById("searchInput").value = "";
-
-    filteredData = rawData;
-    renderTable(filteredData);
-    renderTraceByColumns(filteredData, "");
-    renderDOOptions(filteredData);
-    renderMOOptions(filteredData);
-}
-
-/* ---------- Filter / Table Functions ---------- */
-function parseDateDMY(dateStr){
-    if(!dateStr) return null;
-    if(dateStr.includes('/')){ const p=dateStr.split('/'); return new Date(p[2], p[1]-1, p[0]); }
-    else if(dateStr.includes('-')){ const p=dateStr.split('-'); return new Date(p[0], p[1]-1, p[2]); }
-    return null;
-}
-
-function inRange(dateStr,start,end){
-    const d = parseDateDMY(dateStr);
-    if(!d) return false;
-    if(start && d<start) return false;
-    if(end && d>end) return false;
-    return true;
-}
-
-function applyFilters(){
-    const col = document.getElementById("dateColumn").value;
-    const start = parseDateDMY(document.getElementById("dateStart").value);
-    const end   = parseDateDMY(document.getElementById("dateEnd").value);
-    const traceCol = document.getElementById("traceBy").value;
-    const traceVal = document.getElementById("traceByValue").value;
-    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-    const doVal = document.getElementById("DO").value;
-    const moVal = document.getElementById("MO").value;
-
-    let tempData = rawData;
-    if(col && (start||end)) tempData = tempData.filter(d=>inRange(d[col],start,end));
-    if(traceCol && traceVal) tempData = tempData.filter(d=>d[traceCol]===traceVal);
-    if(doVal) tempData = tempData.filter(d=>d["INVOICE"]===doVal);
-    if(moVal) tempData = tempData.filter(d=>d["M/O NO."]===moVal);
-    if(searchTerm) tempData = tempData.filter(d=>Object.values(d).some(v=>(v||'').toLowerCase().includes(searchTerm)));
-
-    filteredData = tempData;
-    renderTable(filteredData, col);
-
-    renderTraceByColumns(filteredData, col);
-    document.getElementById("traceBy").value = traceCol;
-    if(traceCol) renderTraceByOptions(filteredData, traceCol);
-    document.getElementById("traceByValue").value = traceVal;
-    document.getElementById("DO").value = doVal;
-    document.getElementById("MO").value = moVal;
-}
-
-function highlightText(text, searchTerm){
-    const regex = new RegExp(`(${searchTerm})`, 'gi');
-    return text.replace(regex, `<span class="highlight">$1</span>`);
-}
-
-function renderTable(data, dateCol){
-    const table = document.getElementById("dataTable");
-    table.innerHTML = "";
-    if(data.length===0){ 
-        table.innerHTML="<tr><td colspan='100%'>NO DATA</td></tr>"; 
-        document.getElementById("summaryBar").innerHTML=""; 
-        return; 
+        if(previousTraceBy && traceable.includes(previousTraceBy)){
+            dropdowns.traceBy.setValue(previousTraceBy);
+            renderTraceByOptions(data, previousTraceBy);
+            if(previousTraceByValue && dropdowns.traceByValue.options.includes(previousTraceByValue)){
+                dropdowns.traceByValue.setValue(previousTraceByValue);
+            }
+        }
     }
+}
+
+function renderProcessColumns(data, dateCol){
+    let previousProcess = dropdowns.process.getValue();
+    let previousProcessValue = dropdowns.processValue.getValue();
+
+    dropdowns.process.clear();
+    dropdowns.process.disable();
+    dropdowns.processValue.clear();
+    dropdowns.processValue.disable();
+
+    if(!dateCol || data.length === 0) return;
 
     let columns = Object.keys(data[0]);
     let startKey=null, endKey=null;
@@ -411,26 +554,232 @@ function renderTable(data, dateCol){
 
     if(startKey && endKey) columns = getColumnsBetween(Object.keys(data[0]), startKey, endKey);
 
+    const processable = columns.filter(c => 
+        c.includes("PROCESS") || c.includes("PROCESS NAME") || c.includes("MACHINE")
+    );
+
+    if(processable.length > 0) {
+        dropdowns.process.setOptions(processable);
+        dropdowns.process.enable();
+
+        if(previousProcess && processable.includes(previousProcess)){
+            dropdowns.process.setValue(previousProcess);
+            renderProcessValueOptions(data, previousProcess);
+            if(previousProcessValue && dropdowns.processValue.options.includes(previousProcessValue)){
+                dropdowns.processValue.setValue(previousProcessValue);
+            }
+        }
+    }
+}
+
+function renderTraceByOptions(data, column){
+    let previousValue = dropdowns.traceByValue.getValue();
+    dropdowns.traceByValue.clear();
+    dropdowns.traceByValue.disable();
+    if(!column || data.length===0) return;
+
+    const dateCol = dropdowns.dateColumn.getValue();
+    let uniqueValues = [];
+
+    if(column === "OPERATOR NAME") {
+        if(dateCol === "INV DATE") uniqueValues = data.map(d=>d["OPERATOR NAME"]);
+        else if(dateCol === "PRO DATE") uniqueValues = data.map(d=>d["OPERATOR NAME_4"]);
+        else if(dateCol === "DATE") uniqueValues = data.map(d=>d["OPERATOR NAME_5"]);
+    } else uniqueValues = data.map(d=>d[column]);
+
+    uniqueValues = [...new Set(uniqueValues.filter(v=>v && v.trim()))].sort();
+
+    if(uniqueValues.length > 0) {
+        dropdowns.traceByValue.setOptions(uniqueValues);
+        dropdowns.traceByValue.enable();
+
+        if(previousValue && uniqueValues.includes(previousValue)){
+            dropdowns.traceByValue.setValue(previousValue);
+        }
+    }
+}
+
+function renderProcessValueOptions(data, column){
+    let previousValue = dropdowns.processValue.getValue();
+    dropdowns.processValue.clear();
+    dropdowns.processValue.disable();
+    if(!column || data.length===0) return;
+
+    const uniqueValues = [...new Set(data.map(d=>d[column]).filter(v=>v && v.trim()))].sort();
+
+    if(uniqueValues.length > 0) {
+        dropdowns.processValue.setOptions(uniqueValues);
+        dropdowns.processValue.enable();
+
+        if(previousValue && uniqueValues.includes(previousValue)){
+            dropdowns.processValue.setValue(previousValue);
+        }
+    }
+}
+
+function renderDOOptions(data){
+    const uniqueDO = [...new Set(data.map(d => d["INVOICE"]).filter(v => v && v.trim()))].sort();
+    dropdowns.DO.setOptions(uniqueDO);
+}
+
+function renderMOOptions(data, selectedDO="") {
+    let previousMO = dropdowns.MO.getValue();
+    dropdowns.MO.clear();
+    dropdowns.MO.disable();
+
+    if (!selectedDO) return;
+
+    const filtered = data.filter(d => d["INVOICE"] === selectedDO);
+    const uniqueMO = [...new Set(filtered.map(d => d["M/O NO."]).filter(v => v && v.trim()))].sort();
+
+    if (uniqueMO.length > 0) {
+        dropdowns.MO.setOptions(uniqueMO);
+        dropdowns.MO.enable();
+
+        if (previousMO && uniqueMO.includes(previousMO)) {
+            dropdowns.MO.setValue(previousMO);
+        }
+    }
+}
+
+function renderRefTypeOptions(data){
+    const uniqueRef = [...new Set(data.map(d => d["REF TYPE"]).filter(v => v && v.trim()))].sort();
+    dropdowns.reftype.setOptions(uniqueRef);
+}
+
+/* ---------- Event Listeners ---------- */
+document.getElementById("dateStart").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+document.getElementById("dateEnd").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+document.getElementById("searchInput").addEventListener("input", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+
+/* ---------- Clear Filters Function ---------- */
+document.getElementById("clearBtn").addEventListener("click", clearFilters);
+
+function clearFilters(){
+    dropdowns.DO.setValue("");
+    dropdowns.MO.clear();
+    dropdowns.MO.disable();
+
+    dropdowns.dateColumn.setValue("");
+    dropdowns.tracefrom.setValue("");
+    dropdowns.traceBy.clear();
+    dropdowns.traceBy.disable();
+    dropdowns.traceByValue.clear();
+    dropdowns.traceByValue.disable();
+    dropdowns.reftype.setValue("");
+    dropdowns.process.clear();
+    dropdowns.process.disable();
+    dropdowns.processValue.clear();
+    dropdowns.processValue.disable();
+
+    document.getElementById("dateStart").value = "";
+    document.getElementById("dateEnd").value = "";
+    document.getElementById("searchInput").value = "";
+
+    filteredData = rawData;
+    renderTable(filteredData);
+    renderDOOptions(filteredData);
+    renderRefTypeOptions(filteredData);
+    renderTraceFromOptions(filteredData);
+    updateActiveFiltersDisplay();
+}
+
+/* ---------- Filter / Table Functions ---------- */
+function parseDateDMY(dateStr){
+    if(!dateStr) return null;
+    if(dateStr.includes('/')){ const p=dateStr.split('/'); return new Date(p[2], p[1]-1, p[0]); }
+    else if(dateStr.includes('-')){ const p=dateStr.split('-'); return new Date(p[0], p[1]-1, p[2]); }
+    return null;
+}
+function inRange(dateStr,start,end){
+    const d = parseDateDMY(dateStr);
+    if(!d) return false;
+    if(start && d<start) return false;
+    if(end && d>end) return false;
+    return true;
+}
+function applyFilters(){
+    const col = dropdowns.dateColumn.getValue();
+    const start = parseDateDMY(document.getElementById("dateStart").value);
+    const end   = parseDateDMY(document.getElementById("dateEnd").value);
+    const traceFromCol = dropdowns.tracefrom.getValue();
+    const traceCol = dropdowns.traceBy.getValue();
+    const traceVal = dropdowns.traceByValue.getValue();
+    const processCol = dropdowns.process.getValue();
+    const processVal = dropdowns.processValue.getValue();
+    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+    const doVal = dropdowns.DO.getValue();
+    const moVal = dropdowns.MO.getValue();
+    const refVal = dropdowns.reftype.getValue();
+
+    let tempData = rawData;
+    if(col && (start||end)) tempData = tempData.filter(d=>inRange(d[col],start,end));
+    if(traceFromCol) tempData = tempData.filter(d=>d[traceFromCol] && d[traceFromCol].trim());
+    if(traceCol && traceVal) tempData = tempData.filter(d=>d[traceCol]===traceVal);
+    if(processCol && processVal) tempData = tempData.filter(d=>d[processCol]===processVal);
+    if(doVal) tempData = tempData.filter(d=>d["INVOICE"]===doVal);
+    if(moVal) tempData = tempData.filter(d=>d["M/O NO."]===moVal);
+    if(refVal) tempData = tempData.filter(d => d["REF TYPE"]===refVal);
+    if(searchTerm) tempData = tempData.filter(d=>Object.values(d).some(v=>(v||'').toLowerCase().includes(searchTerm)));
+
+    filteredData = tempData;
+    renderTable(filteredData, col);
+
+    if(col) {
+        renderTraceByColumns(filteredData, col);
+        renderProcessColumns(filteredData, col);
+    }
+    if(traceCol) renderTraceByOptions(filteredData, traceCol);
+    if(processCol) renderProcessValueOptions(filteredData, processCol);
+    if(doVal) renderMOOptions(rawData, doVal);
+}
+function highlightText(text, searchTerm){
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    return text.replace(regex, `<span class="highlight">$1</span>`);
+}
+function renderTable(data, dateCol){
+    const table = document.getElementById("dataTable");
+    table.innerHTML = "";
+    if(data.length===0){ 
+        table.innerHTML="<tr><td colspan='100%'>NO DATA</td></tr>"; 
+        document.getElementById("summaryBar").innerHTML=""; 
+        return; 
+    }
+    let columns = Object.keys(data[0]);
+    let startKey=null, endKey=null;
+
+    if(dateCol==="INV DATE") startKey="INVOICE", endKey="OPERATOR NAME";
+    else if(dateCol==="QA DATE") startKey="QA/FN NO.", endKey="OPERATOR NAME_1";
+    else if(dateCol==="ISS DATE") startKey="M/O NO.", endKey="OPERATOR NAME_2";
+    else if(dateCol==="ISS DATE_1") startKey="LEVEL", endKey="OPERATOR NAME_3";
+    else if(dateCol==="PRO DATE") startKey="NO.", endKey="NG (%)_1";
+    else if(dateCol==="DATE") startKey="MATLOT", endKey="OPERATOR NAME_5";
+    if(startKey && endKey) columns = getColumnsBetween(Object.keys(data[0]), startKey, endKey);
+
     const fixedCols = [];
     if(Object.keys(data[0]).includes("INVOICE")) fixedCols.push("INVOICE");
     if(Object.keys(data[0]).includes("M/O NO.")) fixedCols.push("M/O NO.");
+    if(Object.keys(data[0]).includes("REF TYPE")) fixedCols.push("REF TYPE");
+
     const otherCols = columns.filter(c => !fixedCols.includes(c));
     columns = fixedCols.concat(otherCols);
-
     const thead = document.createElement("thead");
     const headerRow = document.createElement("tr");
-    columns.forEach(col=>{
-        const th = document.createElement("th"); 
-        th.textContent = col; 
-        headerRow.appendChild(th); 
-    });
-    thead.appendChild(headerRow); 
-    table.appendChild(thead);
-
+    columns.forEach(col=>{ const th = document.createElement("th"); th.textContent = col; headerRow.appendChild(th); });
+    thead.appendChild(headerRow); table.appendChild(thead);
     const tbody = document.createElement("tbody");
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    let firstMatchRow = null;
 
+    let firstMatchRow = null;
     data.forEach(row=>{
         const tr = document.createElement("tr");
         columns.forEach(col=>{
@@ -439,78 +788,76 @@ function renderTable(data, dateCol){
             if(searchTerm && value.toLowerCase().includes(searchTerm)){
                 td.innerHTML = highlightText(value, searchTerm);
                 if(!firstMatchRow) firstMatchRow = tr;
-            } else {
-                td.textContent = value;
-            }
+            } else { td.textContent = value; }
             tr.appendChild(td);
         });
         tbody.appendChild(tr);
     });
     table.appendChild(tbody);
-
     renderSummary(data);
-
-    if(firstMatchRow){
-        firstMatchRow.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    if(firstMatchRow){ firstMatchRow.scrollIntoView({ behavior: "smooth", block: "center" }); }
 }
 
 function renderSummary(data){
-    const sumCols = ["INV QTY.","QTY.","QTY._1","QTY._2","IN QTY.","GOOD QTY.","NG QTY."];
-    let totals = {};
-    sumCols.forEach(c => totals[c] = 0);
-    data.forEach(row => sumCols.forEach(c => totals[c]+=parseFloat(row[c])||0));
-
-    let ngPercent = 0, yieldPercent = 0;
-    const totalIn = totals["IN QTY."] || 0;
-    const totalGood = totals["GOOD QTY."] || 0;
-    const totalNg = totals["NG QTY."] || 0;
-
-    if(totalIn > 0){
-        ngPercent = (totalNg / totalIn) * 100;
-        yieldPercent = (totalGood / totalIn) * 100;
+    if(data.length === 0){
+        document.getElementById("summaryBar").innerHTML = "";
+        return;
     }
 
-    const summaryBar = document.getElementById("summaryBar");
-    summaryBar.innerHTML = "";
+    const summaryDiv = document.getElementById("summaryBar");
+    summaryDiv.innerHTML = "";
 
-    sumCols.forEach(col=>{
-        const box = document.createElement("span");
-        box.className = "summary-box";
-        box.textContent = `${col}: ${totals[col].toLocaleString()}`;
-        if(col==="IN QTY.") box.style.color="blue";
-        if(col==="GOOD QTY.") box.style.color="limegreen";
-        if(col==="NG QTY." && totals[col]>0) box.style.color="red";
-        summaryBar.appendChild(box);
+    const moMap = {}; // key = M/O NO., value = aggregated info
+
+    data.forEach(row => {
+        const mo = row["M/O NO."];
+        if(!mo) return;
+
+        if(!moMap[mo]) {
+            moMap[mo] = {
+                qty1: 0,
+                qty2: 0,
+                good: 0,
+                ng: 0
+            };
+        }
+
+        // QTY._1 และ GOOD/NG จะรวมทุกแถวของ MO
+        moMap[mo].qty1 += parseFloat(row["QTY._1"]) || 0;
+        moMap[mo].good += parseFloat(row["GOOD QTY."]) || 0;
+        moMap[mo].ng += parseFloat(row["NG QTY."]) || 0;
+
+        // GOOD QTY. → เก็บค่า **ล่าสุด** (overwrite)
+        moMap[mo].qty2 = parseFloat(row["GOOD QTY."]) || 0;
     });
 
-    const yieldBox = document.createElement("span");
-    yieldBox.className = "summary-box";
-    yieldBox.style.color = "limegreen";
-    yieldBox.textContent = `YIELD (%): ${yieldPercent.toFixed(2)}%`;
-    summaryBar.appendChild(yieldBox);
+    const totalMO = Object.keys(moMap).length;
+    const totalWorkMO = Object.values(moMap).reduce((sum, v) => sum + v.qty1, 0);
+    const totalProcess = Object.values(moMap).reduce((sum, v) => v.qty2, 0); // ใช้ค่า GOOD QTY. ล่าสุด
+    const totalGood = Object.values(moMap).reduce((sum, v) => sum + v.good, 0);
+    const totalNG = Object.values(moMap).reduce((sum, v) => sum + v.ng, 0);
 
-    const ngBox = document.createElement("span");
-    ngBox.className = "summary-box";
-    ngBox.style.color = "red";
-    ngBox.textContent = `NG (%): ${ngPercent.toFixed(2)}%`;
-    summaryBar.appendChild(ngBox);
+    const summaryItems = [
+        {label: "MO", value: totalMO},
+        {label: "MO QTY", value: totalWorkMO},
+        {label: "Last Process", value: totalProcess},
+        {label: "GOOD QTY", value: totalGood},
+        {label: "NG QTY", value: totalNG}
+    ];
+
+    summaryItems.forEach(item => {
+        const box = document.createElement("div");
+        box.className = "summary-box";
+        box.textContent = `${item.label}: ${item.value}`;
+        summaryDiv.appendChild(box);
+    });
 }
 
-function getColumnsBetween(all, start, end){
-    const s = all.indexOf(start), e = all.indexOf(end);
-    return s===-1||e===-1 ? [] : all.slice(s, e+1);
+function getColumnsBetween(columns,startKey,endKey){
+    let startIndex=columns.indexOf(startKey), endIndex=columns.indexOf(endKey);
+    if(startIndex===-1||endIndex===-1) return columns;
+    return columns.slice(startIndex,endIndex+1);
 }
-
-// Sync scroll SectionBar กับ Table Container
-const sectionBarWrapper = document.querySelector('.sectionbar-wrapper');
-const tableContainer = document.querySelector('.table-container');
-
-tableContainer.addEventListener('scroll', () => {
-    sectionBarWrapper.scrollLeft = tableContainer.scrollLeft;
-});
 </script>
 </body>
 </html>
-
-
