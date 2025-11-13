@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>📋Trace Back Data</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ---------- Body ---------- */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f7fa;
+}
+/* ---------- Top Bar ---------- */
+.bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: #2c88ff;
+    color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+.bar h2 { margin: 0; }
+.bar-logo { height: 60px; padding: 0 20px; }
+
+/* ---------- Section Bar 3 Rows ---------- */
+.sectionbar-wrapper {
+    position: sticky;
+    top: 60px;
+    z-index: 1000;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border-bottom: 1px solid #e0e0e0;
+}
+.sectionbar-row1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    background: #f0f8ff;
+    min-height: 40px;
+    flex-wrap: wrap;
+}
+.active-filters-label { font-weight: bold; color: #2c88ff; margin-right: 10px; }
+.active-filter-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    color: white;
+    border-radius: 15px;
+    font-size: 13px;
+}
+.no-active-filters { color: #999; font-style: italic; font-size: 14px; }
+
+/* สีสำหรับ Active Filter ตามกลุ่ม */
+.active-filter-item.group0 { background-color: #2c88ff; }
+.active-filter-item.group1 { background-color: rgb(132, 241, 255); color: rgb(95, 95, 95); }
+.active-filter-item.group2 { background-color: rgb(197, 146, 255); }
+.active-filter-item.group3 { background-color: rgb(255, 167, 255); color: rgb(95, 95, 95); }
+.active-filter-item.group4 { background-color: rgb(255, 255, 153); color: rgb(95, 95, 95); }
+.active-filter-item.group5 { background-color: rgb(193, 253, 149); color: rgb(95, 95, 95); }
+.active-filter-item.group6 { background-color: rgb(255, 160, 160); }
+.active-filter-item.group7 { background-color: rgb(219, 191, 111); }
+
+/* Sectionbar row2, row3, row4 และ row5 - แบบเลื่อนแนวนอนได้ */
+.sectionbar-row2, .sectionbar-row3, .sectionbar-row4, .sectionbar-row5 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+    background: #fff;
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f0f0f0;
+}
+
+/* Custom scrollbar สำหรับ Webkit browsers (Chrome, Safari) - สำหรับ row2, row3, row4, row5 */
+.sectionbar-row2::-webkit-scrollbar,
+.sectionbar-row3::-webkit-scrollbar,
+.sectionbar-row4::-webkit-scrollbar,
+.sectionbar-row5::-webkit-scrollbar {
+    height: 8px;
+}
+
+.sectionbar-row2::-webkit-scrollbar-track,
+.sectionbar-row3::-webkit-scrollbar-track,
+.sectionbar-row4::-webkit-scrollbar-track,
+.sectionbar-row5::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.sectionbar-row2::-webkit-scrollbar-thumb,
+.sectionbar-row3::-webkit-scrollbar-thumb,
+.sectionbar-row4::-webkit-scrollbar-thumb,
+.sectionbar-row5::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.sectionbar-row2::-webkit-scrollbar-thumb:hover,
+.sectionbar-row3::-webkit-scrollbar-thumb:hover,
+.sectionbar-row4::-webkit-scrollbar-thumb:hover,
+.sectionbar-row5::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* ปรับ filter-group ให้อยู่ในพื้นหลัง */
+.filter-group {
+    display: flex;
+    align-items: center;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 8px;
+    background-color: #ffffff;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.filter-group-DO {
+    display: flex;
+    align-items: center;
+    border: 2px solid rgb(0, 69, 208);
+    border-radius: 6px;
+    padding: 4px 8px;
+    background-color: #ffffff;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.filter-group-QA {
+    display: flex;
+    align-items: center;
+    border: 2px solid rgb(144,34,234);
+    border-radius: 6px;
+    padding: 4px 8px;
+    background-color: #ffffff;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.filter-group-MO {
+    display: flex;
+    align-items: center;
+    border: 2px solid rgb(51, 153, 51);
+    border-radius: 6px;
+    padding: 4px 8px;
+    background-color: #ffffff;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.filter-group-MO-row5 {
+    display: flex;
+    align-items: center;
+    border: 2px solid rgb(51, 153, 51);
+    border-radius: 6px;
+    padding: 4px 8px;
+    background-color: #ffffff;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.filter-group-NG {
+    display: flex;
+    align-items: center;
+    border: 2px solid rgb(242,14,14);
+    border-radius: 6px;
+    padding: 4px 8px;
+    background-color: #ffffff;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.filter-group-Matlot {
+    display: flex;
+    align-items: center;
+    border: 2px solid rgb(153, 102, 51);
+    border-radius: 6px;
+    padding: 4px 8px;
+    background-color: #ffffff;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.filter-group:hover {
+    background-color: #ffffff;
+    border-color: #2c88ff;
+}
+.filter-group-DO:hover {
+    background-color: #ffffff;
+    border-color: rgb(107, 154, 255);
+}
+.filter-group-QA:hover {
+    background-color: #ffffff;
+    border-color: rgb(197, 146, 255);
+}
+.filter-group-MO:hover {
+    background-color: #ffffff;
+    border-color: rgb(50, 205, 50);
+}
+.filter-group-MO-row5:hover {
+    background-color: #ffffff;
+    border-color: rgb(50, 205, 50);
+}
+.filter-group-NG:hover {
+    background-color: #ffffff;
+    border-color: rgb(255, 160, 160);
+}
+.filter-group-Matlot:hover {
+    background-color: #ffffff;
+    border-color: rgb(219, 191, 111);
+}
+
+/* ปรับ Trace By Filter ให้รวม Trace By และ Trace By Value ในกรอบเดียวกัน */
+.combined-traceby-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 350px;
+    flex: 1;
+}
+
+.combined-traceby-group .searchable-dropdown {
+    flex: 1;
+    min-width: 140px;
+}
+
+/* ปรับ Process Filter ให้รวม Process และ Process Value ในกรอบเดียวกัน */
+.combined-process-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 350px;
+    flex: 1;
+}
+
+.combined-process-group .searchable-dropdown {
+    flex: 1;
+    min-width: 140px;
+}
+
+/* ปรับ search box */
+.search-box-row2, .search-box-row3, .search-box-row4, .search-box-row5 {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.search-box-row2 input, .search-box-row3 input, .search-box-row4 input, .search-box-row5 input { 
+    padding: 4px 8px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    width: 200px;
+}
+
+/* ---------- Searchable Dropdown Styles ---------- */
+.searchable-dropdown { 
+    position: relative; 
+    flex: 1; 
+    min-width: 120px; 
+}
+.dropdown-button {
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    width: 100%; 
+    padding: 4px 8px; 
+    border: 1px solid #ccc;
+    border-radius: 4px; 
+    background: white; 
+    cursor: pointer; 
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.dropdown-button:hover { background: #f5f5f5; }
+.dropdown-arrow { margin-left: 5px; font-size: 12px; transition: transform 0.2s; }
+.dropdown-arrow.open { transform: rotate(180deg); }
+.dropdown-content {
+    position: fixed;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    z-index: 2000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.dropdown-content.open { display: block; }
+.dropdown-search { width: 100%; padding: 8px; border: none; border-bottom: 1px solid #eee; outline: none; font-size: 14px; box-sizing: border-box; }
+.dropdown-options { max-height: 250px; overflow-y: auto; }
+.dropdown-option { 
+    padding: 8px 12px; 
+    cursor: pointer; 
+    font-size: 14px; 
+    border-bottom: 1px solid #f0f0f0; 
+    display: flex;
+    align-items: center;
+}
+.dropdown-option:hover { background: #f0f8ff; }
+.dropdown-option:last-child { border-bottom: none; }
+.dropdown-option.selected { background: #2c88ff; color: white; }
+
+/* Checkbox สำหรับเลือกหลายค่า */
+.dropdown-checkbox {
+    margin-right: 8px;
+}
+
+/* Date inputs */
+input[type="date"] { 
+    padding: 4px 8px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    font-size: 14px; 
+}
+
+/* ---------- Summary ---------- */
+.summary-bar { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    padding: 10px 20px; 
+    background: #fff; 
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.summary-box { 
+    background: #fff; 
+    padding: 8px 16px; 
+    border-radius: 6px; 
+    border: 2px solid #2c88ff; 
+    font-weight: bold; 
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    color: #2c88ff;
+    flex: 1;
+    min-width: 300px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* ---------- Table ---------- */
+.table-container { 
+    flex: 1; 
+    overflow: auto; 
+    margin: 0 20px 20px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+table { 
+    border-collapse: collapse; 
+    width: 100%; 
+}
+th, td { 
+    border: 1px solid #ddd; 
+    padding: 8px; 
+    font-size: 14px; 
+}
+th { 
+    background: #2c88ff; 
+    color: white; 
+    position: sticky; 
+    top: 0; 
+    z-index: 10; 
+}
+tr:nth-child(even) { background: #f8fbff; }
+tr:hover { background: #e9f2ff; }
+.highlight { background-color: #ffea2c; font-weight: bold; }
+
+/* ---------- Buttons ---------- */
+button { 
+    padding: 5px 10px; 
+    border-radius: 4px; 
+    border: none; 
+    background: #2c88ff; 
+    color: white; 
+    cursor: pointer; 
+    font-size: 14px; 
+    transition: background 0.2s;
+}
+button:hover { background: #1860c0; }
+
+/* ปรับปรุงสำหรับ Date Range Filter */
+.date-range-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Style สำหรับ checkbox ที่เลือกแล้ว */
+.date-checkbox:checked + label {
+    background-color: #2c88ff;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+/* ปรับปรุงสำหรับ OPERATOR filter-group */
+.operator-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 350px;
+    flex: 1;
+}
+
+.operator-filter-group input {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+/* ปรับปรุงสำหรับหน้าจอขนาดเล็ก */
+@media (max-width: 768px) {
+    .sectionbar-row2, .sectionbar-row3, .sectionbar-row4, .sectionbar-row5 {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+    
+    .filter-group {
+        padding: 4px 6px;
+    }
+    
+    .search-box-row2 input,
+    .search-box-row3 input,
+    .search-box-row4 input,
+    .search-box-row5 input {
+        width: 150px;
+    }
+    
+    .combined-traceby-group,
+    .combined-process-group,
+    .operator-filter-group {
+        min-width: 280px;
+    }
+    
+    .summary-bar {
+        padding: 10px;
+    }
+    
+    .summary-box {
+        min-width: 100px;
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+}
+
+/* ปรับปรุงสำหรับ sectionbar-row4 และ row5 ให้ขยายเต็มและมีขนาดเท่ากัน */
+.sectionbar-row4, .sectionbar-row5 {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sectionbar-row4 .filter-group,
+.sectionbar-row5 .filter-group,.sectionbar-row4 .filter-group-MO-row5,
+.sectionbar-row5 .filter-group-MO-row5  {
+    flex: 1;
+    min-width: 300px;
+    max-width: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* ปรับปรุง dropdown ใน row4 และ row5 ให้มีขนาดเท่ากัน */
+.sectionbar-row4 .searchable-dropdown,
+.sectionbar-row5 .searchable-dropdown {
+    flex: 1;
+    min-width: 190px;
+}
+
+/* ปรับปรุง OPERATOR filter-group ใน row4 */
+.sectionbar-row4 .operator-filter-group {
+    flex: 2;
+    min-width: 450px;
+}
+
+.sectionbar-row4 .operator-filter-group input {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* ---------- เพิ่มสีให้กับหัวตารางและข้อมูลตามกลุ่มที่ระบุ ---------- */
+
+/* กลุ่ม 1: INVOICE ถึง OPERATOR NAME */
+.group1-header { background-color: rgb(0, 69, 208) !important; }
+.group1-data { background-color: rgb(174, 222, 244) !important; }
+
+/* กลุ่ม 2: QA/FN NO. ถึง OPERATOR NAME_1 */
+.group2-header { background-color: rgb(144, 34, 234) !important; }
+.group2-data { background-color: rgb(183, 183, 255) !important; }
+
+/* กลุ่ม 3: M/O NO. ถึง OPERATOR NAME_2 */
+.group3-header { background-color: rgb(172, 0, 164) !important; }
+.group3-data { background-color: rgb(255, 229, 255) !important; }
+
+/* กลุ่ม 4: LEVEL ถึง OPERATOR NAME_3 */
+.group4-header { background-color: rgb(202, 172, 0) !important; }
+.group4-data { background-color: rgb(255, 255, 153) !important; }
+
+/* กลุ่ม 5: NO. ถึง OPERATOR NAME_4 */
+.group5-header { background-color: rgb(51, 153, 51) !important; }
+.group5-data { background-color: rgb(198, 224, 180) !important; }
+
+/* กลุ่ม 6: NO ถึง NG (%)_1 */
+.group6-header { background-color: rgb(242, 14, 14) !important; }
+.group6-data { background-color: rgb(255, 185, 185) !important; }
+
+/* กลุ่ม 7: MATLOT ถึง OPERATOR NAME_5 */
+.group7-header { background-color: rgb(153, 102, 51) !important; }
+.group7-data { background-color: rgb(219, 191, 111) !important; }
+
+
+/* กำหนดสีข้อความในหัวตารางให้เป็นสีขาวเพื่อให้อ่านง่าย */
+.group1-header, .group2-header, .group3-header, 
+.group4-header, .group5-header, .group6-header, .group7-header {
+    color: white !important;
+}
+
+/* กำหนดให้ hover มีความสำคัญเหนือสีกลุ่ม */
+tr:hover td {
+    background-color: #ffffff !important;
+}
+
+/* ---------- ปุ่มดาวน์โหลด Excel ---------- */
+#downloadExcelBtn {
+    background-color: #28a745;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#downloadExcelBtn:hover {
+    background-color: #218838;
+}
+</style>
+</head>
+
+<body>
+<div class="bar">
+    <h2>📋Trace Back Data</h2>
+    <img src="static/minebeamitsumi.png" alt="Logo" class="bar-logo">
+</div>
+
+<div class="sectionbar-wrapper">
+    <div class="sectionbar-row1">
+        <div id="activeFiltersRow">
+            <span class="active-filters-label">Active Filters:</span>
+            <span class="no-active-filters">No filters selected</span>
+        </div>
+        <button id="clearBtn">Clear Filters</button>
+        <button id="downloadExcelBtn"><img src="static/excel.png">Download</button>
+    </div>
+
+    <div class="sectionbar-row2">
+        <div class="filter-group">
+            <label>🗂️Section :</label>
+            <div class="searchable-dropdown" id="Section-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search Section...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label>📍Trace From :</label>
+            <div class="searchable-dropdown" id="tracefrom-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search Trace From...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trace By Filter และ Trace By Value รวมอยู่ในกรอบเดียวกัน -->
+        <div class="filter-group combined-traceby-group">
+            <label for="traceBy">🧾Trace By :</label>
+            <div class="searchable-dropdown" id="traceBy-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search Trace By...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+            <div class="searchable-dropdown" id="traceByValue-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search Value...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-box-row2">
+            <input type="text" id="searchInput" placeholder="🔍 Search All...">
+        </div>
+    </div>
+
+     <div class="sectionbar-row3">
+        <div class="filter-group-DO">
+            <label>🛍️DO <input type="checkbox" id="invDateCheckbox" class="date-checkbox">
+                <label for="invDateCheckbox">Show </label>:
+            </label>
+            <div class="searchable-dropdown" id="DO-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search DO...">
+                    <div class="dropdown-options"></div>
+                    
+                </div>
+            </div>
+            <label>📅Inv Date :</label>
+            <div class="date-range-group">
+                <input type="date" id="invdateStart">
+                <input type="date" id="invdateEnd">
+            </div>
+        </div>
+
+        <div class="filter-group-QA">
+            <label>🕵️QA <input type="checkbox" id="qaDateCheckbox" class="date-checkbox">
+              <label for="qaDateCheckbox">Show </label>:
+            </label>
+              <div class="searchable-dropdown" id="qa-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search qa...">
+                    <div class="dropdown-options"></div>
+                </div>
+              </div>
+            <label>📅QA Date :</label>
+            <div class="date-range-group">
+                <input type="date" id="qadateStart">
+                <input type="date" id="qadateEnd">
+            </div>
+        </div>
+
+        <div class="filter-group-MO">
+            <label>📋MO <input type="checkbox" id="proDateCheckbox" class="date-checkbox">
+              <label for="proDateCheckbox">Show </label>:
+            </label>
+              <div class="searchable-dropdown" id="MO-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search MO...">
+                    <div class="dropdown-options"></div>
+                </div>
+              </div>
+            <label>📅Pro Date :</label>
+              <div class="date-range-group">
+                <input type="date" id="prodateStart">
+                <input type="date" id="prodateEnd">
+            </div>
+        </div>
+
+        <div class="filter-group-NG">
+            <label>⚠️NG :</label>
+              <div class="date-range-group">
+                <input type="checkbox" id="NGCheckbox" class="date-checkbox">
+                <label for="NGCheckbox">Show</label>
+            </div>
+        </div>
+
+        <div class="filter-group-Matlot">
+            <label>🧩Matlot <input type="checkbox" id="dateCheckbox" class="date-checkbox">
+                <label for="dateCheckbox">Show </label>:
+            </label>
+              <div class="searchable-dropdown" id="matlot-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search matlot...">
+                    <div class="dropdown-options"></div>
+                </div>
+              </div>
+            <label>📅Matlot Date :</label>
+              <div class="date-range-group">
+                <input type="date" id="dateStart">
+                <input type="date" id="dateEnd">
+              </div>
+        </div>
+    </div>
+
+    <div class="sectionbar-row4">
+        <div class="filter-group-DO">
+            <label>🔢Item NO :</label>
+            <div class="searchable-dropdown" id="itemNo-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search Item NO...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+        
+            <label>🏷️Item Name :</label>
+            <div class="searchable-dropdown" id="itemName-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search Item Name...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-group-MO">
+            <label>🔧Model :</label>
+            <div class="searchable-dropdown" id="model-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search model...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+        
+            <label>🔐Process :</label>
+            <div class="searchable-dropdown" id="process-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search process...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+        
+            <label>🤖Machine :</label>
+            <div class="searchable-dropdown" id="machine-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search machine...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ปรับปรุง OPERATOR filter-group ให้รวมทั้งสองช่องค้นหา -->
+        <div class="filter-group-MO operator-filter-group">
+            <label>👷OPERATOR :</label>
+            <input type="text" id="operator4Search" placeholder="🆔OPERATOR">
+            <input type="text" id="operatorName4Search" placeholder="🔠OPERATOR NAME">
+        </div>
+    </div>
+
+    <div class="sectionbar-row5">
+
+        <div class="filter-group-MO-row5">
+            <label>📦Material Lot :</label>
+            <div class="searchable-dropdown" id="materail_lot-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search Material Lot...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+            <label>📌Remark 1 :</label>
+            <div class="searchable-dropdown" id="remark1-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search REMARK 1...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+             <label>✍Remark 2 :</label>
+            <div class="searchable-dropdown" id="remark2-dropdown">
+                <div class="dropdown-button"><span>No Filter</span><span class="dropdown-arrow">▼</span></div>
+                <div class="dropdown-content">
+                    <input type="text" class="dropdown-search" placeholder="Search REMARK 2...">
+                    <div class="dropdown-options"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="summaryBar" class="summary-bar"></div>
+
+<div class="table-container">
+    <table id="dataTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<script>
+// Global variables
+let rawData = [], filteredData = [];
+let dropdowns = {};
+let columnVisibility = {}; // สำหรับเก็บสถานะการแสดงคอลัมน์
+
+// กำหนดช่วงคอลัมน์สำหรับแต่ละฟิลเตอร์วันที่
+const dateColumnRanges = {
+    invDate: { start: 'INVOICE', end: 'OPERATOR NAME' },
+    qaDate: { start: 'QA/FN NO.', end: 'OPERATOR NAME_2' },
+    proDate: { start: 'LEVEL', end: 'OPERATOR NAME_4' },
+    date: { start: 'MATLOT', end: 'OPERATOR NAME_5' },
+    NG: { start: 'NO', end: 'NG (%)_1' }
+};
+
+// กำหนดกลุ่มคอลัมน์และสีสำหรับหัวตารางและข้อมูล
+const columnGroups = [
+    { start: 'INVOICE', end: 'OPERATOR NAME', headerColor: 'rgb(0,32,96)', dataColor: 'rgb(189,215,238)' },
+    { start: 'QA/FN NO.', end: 'OPERATOR NAME_1', headerColor: 'rgb(112,48,160)', dataColor: 'rgb(204,204,255)' },
+    { start: 'M/O NO.', end: 'OPERATOR NAME_2', headerColor: 'rgb(0,102,0)', dataColor: 'rgb(198,224,180)' },
+    { start: 'LEVEL', end: 'OPERATOR NAME_3', headerColor: 'rgb(153,51,0)', dataColor: 'rgb(245,222,179)' },
+    { start: 'NO.', end: 'OPERATOR NAME_4', headerColor: 'rgb(200,0,190)', dataColor: 'rgb(255,229,255)' },
+    { start: 'NO', end: 'NG (%)_1', headerColor: 'rgb(242,4,4)', dataColor: 'rgb(255,218,185)' },
+    { start: 'MATLOT', end: 'OPERATOR NAME_5', headerColor: 'rgb(105,105,105)', dataColor: 'rgb(226,226,226)' }
+];
+
+// Mapping ระหว่างฟิลเตอร์กับกลุ่มข้อมูล
+const filterToGroupMap = {
+    'DO': 'group1',
+    'MO': 'group5',
+    'section': 'group0',
+    'itemName': 'group1',
+    'tracefrom': 'group0',
+    'traceBy': 'group0',
+    'traceByValue': 'group0',
+    'process': 'group5',
+    'matlot': 'group7',
+    'qa': 'group2',
+    'itemNo': 'group1',
+    'model': 'group5',
+    'machine': 'group5',
+    'remark1': 'group5',
+    'remark2': 'group5',
+    'materail_lot': 'group5',
+    'operator4Search': 'group5',
+    'operatorName4Search': 'group5',
+    'invDateCheckbox': 'group1',
+    'proDateCheckbox': 'group5',
+    'dateCheckbox': 'group7',
+    'qaDateCheckbox': 'group2',
+    'NGCheckbox': 'group6',
+    'invdate': 'group1',
+    'prodate': 'group5',
+    'date': 'group7',
+    'qadate': 'group2'
+};
+
+// ---------- ฟังก์ชันดาวน์โหลด Excel ----------
+function downloadExcel() {
+    if (filteredData.length === 0) {
+        alert("ไม่มีข้อมูลที่จะดาวน์โหลด");
+        return;
+    }
+
+    try {
+        // ตรวจสอบว่า XLSX ถูกโหลดมาแล้ว
+        if (typeof XLSX === 'undefined') {
+            alert("ไลบรารี Excel ยังไม่พร้อมใช้งาน กรุณารอสักครู่แล้วลองอีกครั้ง");
+            return;
+        }
+
+        // ตรวจสอบ checkbox วันที่ที่เลือก - เพิ่ม NGCheckbox
+        const selectedRanges = [];
+        if (document.getElementById('invDateCheckbox').checked) {
+            selectedRanges.push(dateColumnRanges.invDate);
+        }
+        if (document.getElementById('qaDateCheckbox').checked) {
+            selectedRanges.push(dateColumnRanges.qaDate);
+        }
+        if (document.getElementById('proDateCheckbox').checked) {
+            selectedRanges.push(dateColumnRanges.proDate);
+        }
+        if (document.getElementById('dateCheckbox').checked) {
+            selectedRanges.push(dateColumnRanges.date);
+        }
+        if (document.getElementById('NGCheckbox').checked) {
+            selectedRanges.push(dateColumnRanges.NG);  // เพิ่มช่วง NG
+        }
+
+        // ถ้าไม่มี checkbox ถูกเลือก ให้ดาวน์โหลดทั้งหมด
+        let dataToDownload = filteredData;
+        let columnsToInclude = Object.keys(filteredData[0]);
+
+        // ถ้ามี checkbox ถูกเลือก ให้กรองคอลัมน์
+        if (selectedRanges.length > 0) {
+            const visibleColumns = new Set();
+            
+            selectedRanges.forEach(range => {
+                const startIndex = columnsToInclude.indexOf(range.start);
+                const endIndex = columnsToInclude.indexOf(range.end);
+                
+                if (startIndex !== -1 && endIndex !== -1) {
+                    for (let i = startIndex; i <= endIndex; i++) {
+                        visibleColumns.add(columnsToInclude[i]);
+                    }
+                }
+            });
+
+            // กรองข้อมูลให้เหลือเฉพาะคอลัมน์ที่เลือก
+            dataToDownload = filteredData.map(row => {
+                const filteredRow = {};
+                visibleColumns.forEach(col => {
+                    if (row.hasOwnProperty(col)) {
+                        filteredRow[col] = row[col];
+                    }
+                });
+                return filteredRow;
+            });
+
+            columnsToInclude = Array.from(visibleColumns);
+        }
+
+        // สร้าง worksheet จากข้อมูลที่กรองแล้ว
+        const ws = XLSX.utils.json_to_sheet(dataToDownload);
+        
+        // สร้าง workbook และเพิ่ม worksheet
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Trace Back Data Dashboard");
+        
+        // สร้างไฟล์ Excel และดาวน์โหลด
+        const currentDate = new Date().toISOString().slice(0, 10);
+        const randomId = Math.random().toString(36).substring(2, 6).toUpperCase();
+        const fileName = `Trace Back Data ${currentDate} ${randomId}.xlsx`;
+        
+        XLSX.writeFile(wb, fileName);
+        
+        console.log("ไฟล์ Excel ถูกดาวน์โหลดเรียบร้อยแล้ว");
+        console.log("จำนวนข้อมูลที่ดาวน์โหลด:", dataToDownload.length);
+        console.log("คอลัมน์ที่ดาวน์โหลด:", columnsToInclude);
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์ Excel:", error);
+        alert("เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์ Excel: " + error.message);
+    }
+}
+
+// เพิ่ม Event Listener สำหรับปุ่มดาวน์โหลด Excel
+document.getElementById("downloadExcelBtn").addEventListener("click", downloadExcel);
+
+// ---------- Searchable Dropdown Class ----------
+class SearchableDropdown {
+    constructor(element, onChange, multiple = false) {
+        this.element = element;
+        this.onChange = onChange;
+        this.multiple = multiple;
+        this.selectedValues = multiple ? [] : "";
+        this.options = [];
+        this.filteredOptions = [];
+        
+        this.button = element.querySelector('.dropdown-button');
+        this.content = element.querySelector('.dropdown-content');
+        this.search = element.querySelector('.dropdown-search');
+        this.optionsContainer = element.querySelector('.dropdown-options');
+        this.arrow = element.querySelector('.dropdown-arrow');
+        this.span = document.querySelector(`#${element.id} .dropdown-button span`);
+        
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        this.button.addEventListener('click', e => {
+            e.stopPropagation();
+            this.toggle();
+        });
+        
+        this.search.addEventListener('input', e => this.filterOptions(e.target.value));
+        document.addEventListener('click', e => {
+            if (!this.element.contains(e.target)) this.close();
+        });
+        
+        this.content.addEventListener('click', e => e.stopPropagation());
+    }
+    
+    toggle() {
+        this.content.classList.contains('open') ? this.close() : this.open();
+    }
+    
+    open() {
+        document.querySelectorAll('.dropdown-content.open').forEach(c => {
+            c.classList.remove('open');
+            c.parentElement.querySelector('.dropdown-arrow').classList.remove('open');
+        });
+        
+        this.content.classList.add('open');
+        this.arrow.classList.add('open');
+        
+        const rect = this.button.getBoundingClientRect();
+        this.content.style.top = `${rect.bottom + window.scrollY}px`;
+        this.content.style.left = `${rect.left + window.scrollX}px`;
+        this.content.style.width = `${rect.width}px`;
+        
+        this.search.focus();
+        this.search.value = '';
+        this.filterOptions('');
+    }
+    
+    close() {
+        this.content.classList.remove('open');
+        this.arrow.classList.remove('open');
+    }
+    
+    setOptions(options) {
+        console.log(`Setting options for ${this.element.id}:`, options);
+        this.options = ["No Filter", ...options];
+        this.filteredOptions = [...this.options];
+        this.renderOptions();
+    }
+    
+    filterOptions(searchText) {
+        const text = searchText.toLowerCase();
+        this.filteredOptions = this.options.filter(o => o.toLowerCase().includes(text));
+        this.renderOptions();
+    }
+    
+    renderOptions() {
+        this.optionsContainer.innerHTML = '';
+        
+        this.filteredOptions.forEach(o => {
+            const div = document.createElement('div');
+            div.className = 'dropdown-option';
+            
+            if (this.multiple) {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'dropdown-checkbox';
+                checkbox.checked = this.selectedValues.includes(o);
+                
+                checkbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleOption(o);
+                });
+                
+                div.appendChild(checkbox);
+            }
+            
+            const textSpan = document.createElement('span');
+            textSpan.textContent = o;
+            div.appendChild(textSpan);
+            
+            if (!this.multiple && (o === this.selectedValues || (o === "No Filter" && !this.selectedValues))) {
+                div.classList.add('selected');
+            }
+            
+            div.addEventListener('click', () => {
+                if (this.multiple) {
+                    const checkbox = div.querySelector('.dropdown-checkbox');
+                    checkbox.checked = !checkbox.checked;
+                    this.toggleOption(o);
+                } else {
+                    this.selectOption(o);
+                }
+            });
+            
+            this.optionsContainer.appendChild(div);
+        });
+    }
+    
+    toggleOption(option) {
+        if (option === "No Filter") {
+            this.selectedValues = [];
+            this.updateButtonText();
+            this.close();
+            if (this.onChange) this.onChange(this.selectedValues);
+            updateActiveFiltersDisplay();
+            return;
+        }
+        
+        if (this.selectedValues.includes(option)) {
+            this.selectedValues = this.selectedValues.filter(v => v !== option);
+        } else {
+            this.selectedValues.push(option);
+        }
+        
+        this.updateButtonText();
+        if (this.onChange) this.onChange(this.selectedValues);
+        updateActiveFiltersDisplay();
+    }
+    
+    selectOption(option) {
+        this.selectedValues = option === "No Filter" ? "" : option;
+        this.updateButtonText();
+        this.close();
+        if (this.onChange) this.onChange(this.selectedValues);
+        updateActiveFiltersDisplay();
+    }
+    
+    updateButtonText() {
+        if (this.multiple) {
+            if (this.selectedValues.length === 0) {
+                this.span.textContent = "No Filter";
+            } else if (this.selectedValues.length === 1) {
+                this.span.textContent = this.selectedValues[0];
+            } else {
+                this.span.textContent = `${this.selectedValues.length} selected`;
+            }
+        } else {
+            this.span.textContent = this.selectedValues || "No Filter";
+        }
+    }
+    
+    getValue() {
+        return this.selectedValues;
+    }
+    
+    setValue(value) {
+        if (this.multiple) {
+            this.selectedValues = Array.isArray(value) ? value : [value].filter(v => v);
+        } else {
+            this.selectedValues = value || "";
+        }
+        this.updateButtonText();
+        this.renderOptions();
+    }
+    
+    enable() {
+        this.element.style.opacity = '1';
+        this.element.style.pointerEvents = 'auto';
+    }
+    
+    disable() {
+        this.element.style.opacity = '0.5';
+        this.element.style.pointerEvents = 'none';
+        this.setValue("");
+    }
+    
+    clear() {
+        this.setValue("");
+        this.setOptions([]);
+    }
+}
+
+// ---------- Initialize Dropdowns ----------
+function initializeDropdowns() {
+    // กำหนดให้ฟิลเตอร์เหล่านี้สามารถเลือกได้หลายค่า
+    dropdowns.DO = new SearchableDropdown(
+        document.getElementById('DO-dropdown'),
+        value => {
+            dropdowns.DO.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    // ปรับปรุง: ทำให้ MO dropdown สามารถเลือกได้หลายค่า
+    dropdowns.MO = new SearchableDropdown(
+        document.getElementById('MO-dropdown'),
+        value => {
+            dropdowns.MO.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.section = new SearchableDropdown(
+        document.getElementById('Section-dropdown'),
+        value => {
+            dropdowns.section.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.itemName = new SearchableDropdown(
+        document.getElementById('itemName-dropdown'),
+        value => {
+            dropdowns.itemName.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.tracefrom = new SearchableDropdown(
+        document.getElementById('tracefrom-dropdown'),
+        value => {
+            dropdowns.tracefrom.setValue(value);
+            renderTraceFromValueOptions(filteredData, value);
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.traceBy = new SearchableDropdown(
+        document.getElementById('traceBy-dropdown'),
+        value => {
+            dropdowns.traceBy.setValue(value);
+            if (value) {
+                renderTraceByOptions(filteredData, value);
+            } else {
+                dropdowns.traceByValue.clear();
+                dropdowns.traceByValue.disable();
+            }
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+    );
+
+    dropdowns.traceByValue = new SearchableDropdown(
+        document.getElementById('traceByValue-dropdown'),
+        value => {
+            dropdowns.traceByValue.setValue(value);
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.process = new SearchableDropdown(
+        document.getElementById('process-dropdown'),
+        value => {
+            dropdowns.process.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    // เพิ่มฟิลเตอร์ใหม่ทั้งหมด
+    dropdowns.matlot = new SearchableDropdown(
+        document.getElementById('matlot-dropdown'),
+        value => {
+            dropdowns.matlot.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.qa = new SearchableDropdown(
+        document.getElementById('qa-dropdown'),
+        value => {
+            dropdowns.qa.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.itemNo = new SearchableDropdown(
+        document.getElementById('itemNo-dropdown'),
+        value => {
+            dropdowns.itemNo.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.model = new SearchableDropdown(
+        document.getElementById('model-dropdown'),
+        value => {
+            dropdowns.model.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.machine = new SearchableDropdown(
+        document.getElementById('machine-dropdown'),
+        value => {
+            dropdowns.machine.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.remark1 = new SearchableDropdown(
+        document.getElementById('remark1-dropdown'),
+        value => {
+            dropdowns.remark1.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.remark2 = new SearchableDropdown(
+        document.getElementById('remark2-dropdown'),
+        value => {
+            dropdowns.remark2.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    dropdowns.materail_lot = new SearchableDropdown(
+        document.getElementById('materail_lot-dropdown'),
+        value => {
+            dropdowns.materail_lot.setValue(value);
+            updateAllDropdowns();
+            applyFilters();
+            updateActiveFiltersDisplay();
+        },
+        true // multiple selection
+    );
+
+    // ตั้งค่า options เฉพาะสำหรับ Trace By
+    dropdowns.traceBy.setOptions(["ITEM NO.", "REF NO.", "OPERATOR NAME"]);
+    dropdowns.traceBy.enable();
+    
+    // เปิดใช้งาน MO dropdown โดยตรง
+    dropdowns.MO.enable();
+}
+
+// ---------- Update All Dropdowns ----------
+function updateAllDropdowns() {
+    const selectedDO = dropdowns.DO.getValue();
+    const selectedMO = dropdowns.MO.getValue();
+    const selectedQA = dropdowns.qa.getValue();
+    const selectedMatlot = dropdowns.matlot.getValue();
+    const selectedItemNo = dropdowns.itemNo.getValue();
+    const selectedItemName = dropdowns.itemName.getValue();
+    const selectedModel = dropdowns.model.getValue();
+    const selectedProcess = dropdowns.process.getValue();
+    const selectedMachine = dropdowns.machine.getValue();
+    const selectedRemark1 = dropdowns.remark1.getValue();
+    const selectedRemark2 = dropdowns.remark2.getValue();
+    const selectedMaterialLot = dropdowns.materail_lot.getValue();
+    
+    // อัพเดต dropdown ต่างๆ ตามค่าที่เลือก
+    renderDOOptions(rawData, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    renderMOOptions(rawData, selectedDO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    renderQAOptions(rawData, selectedDO, selectedMO, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    renderMatlotOptions(rawData, selectedDO, selectedMO, selectedQA, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    renderItemNoOptions(rawData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    renderItemNameOptions(rawData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    renderModelOptions(rawData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    renderProcessOptions(rawData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    renderMachineOptions(rawData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    renderRemark1Options(rawData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark2, selectedMaterialLot);
+    renderRemark2Options(rawData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedMaterialLot);
+    renderMaterialLotOptions(rawData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2);
+    
+    // เปิดใช้งาน dropdowns ทั้งหมด
+    enableAllDropdowns();
+}
+
+// ---------- Enable All Dropdowns ----------
+function enableAllDropdowns() {
+    Object.keys(dropdowns).forEach(key => {
+        if (dropdowns[key] && typeof dropdowns[key].enable === 'function') {
+            dropdowns[key].enable();
+        }
+    });
+}
+
+// ---------- Update Active Filters ----------
+function updateActiveFiltersDisplay() {
+    const row = document.getElementById('activeFiltersRow');
+    row.innerHTML = '<span class="active-filters-label">Active Filters:</span>';
+
+    const activeFilters = [];
+
+    // เพิ่มฟิลเตอร์ทั้งหมดที่ต้องการแสดง
+    const filterKeys = [
+        'DO', 'MO', 'section', 'itemName', 'tracefrom', 'traceBy', 'traceByValue', 
+        'process', 'matlot', 'qa', 'itemNo', 'model', 'machine', 
+        'remark1', 'remark2', 'materail_lot'
+    ];
+
+    filterKeys.forEach(f => {
+        if (dropdowns[f] && dropdowns[f].getValue()) {
+            let values = dropdowns[f].getValue();
+            
+            if (Array.isArray(values) && values.length > 0) {
+                let label = getFilterLabel(f);
+                values.forEach(value => {
+                    activeFilters.push({label: label, value: value, key: f});
+                });
+            } 
+            else if (values && !Array.isArray(values)) {
+                let label = getFilterLabel(f);
+                activeFilters.push({label: label, value: values, key: f});
+            }
+        }
+    });
+
+    // เพิ่มฟิลเตอร์วันที่
+    const dateRanges = [
+        {start: 'invdateStart', end: 'invdateEnd', label: 'Inv Date', key: 'invdate'},
+        {start: 'qadateStart', end: 'qadateEnd', label: 'QA Date', key: 'qadate'},
+        {start: 'prodateStart', end: 'prodateEnd', label: 'Pro Date', key: 'prodate'},
+        {start: 'dateStart', end: 'dateEnd', label: 'Date', key: 'date'}
+        
+    ];
+
+    dateRanges.forEach(range => {
+        const start = document.getElementById(range.start).value;
+        const end = document.getElementById(range.end).value;
+        if (start || end) {
+            activeFilters.push({
+                label: range.label, 
+                value: start && end ? `${start} to ${end}` : start ? `From ${start}` : `Until ${end}`, 
+                key: range.key
+            });
+        }
+    });
+
+    const searchTerm = document.getElementById('searchInput').value;
+    if (searchTerm) activeFilters.push({label: 'Search', value: searchTerm, key: 'search'});
+
+    // เพิ่มฟิลเตอร์ search-box ใหม่
+    const operator4Search = document.getElementById('operator4Search').value;
+    if (operator4Search) activeFilters.push({label: 'OPERATOR_4', value: operator4Search, key: 'operator4Search'});
+
+    const operatorName4Search = document.getElementById('operatorName4Search').value;
+    if (operatorName4Search) activeFilters.push({label: 'OPERATOR NAME_4', value: operatorName4Search, key: 'operatorName4Search'});
+
+    // เพิ่มฟิลเตอร์ checkbox วันที่
+    const dateCheckboxes = [
+        {id: 'invDateCheckbox', label: 'Inv Date Columns', key: 'invDateCheckbox'},
+        {id: 'proDateCheckbox', label: 'Pro Date Columns', key: 'proDateCheckbox'},
+        {id: 'dateCheckbox', label: 'Matlot Date Columns', key: 'dateCheckbox'},
+        {id: 'qaDateCheckbox', label: 'QA Date Columns', key: 'qaDateCheckbox'},
+        {id: 'NGCheckbox', label: 'NG Columns', key: 'NGCheckbox'}
+    ];
+
+    dateCheckboxes.forEach(checkbox => {
+        if (document.getElementById(checkbox.id).checked) {
+            activeFilters.push({label: checkbox.label, value: 'Show', key: checkbox.key});
+        }
+    });
+
+    if (activeFilters.length > 0) {
+        activeFilters.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'active-filter-item';
+            
+            // เพิ่มคลาสสีตามกลุ่มของฟิลเตอร์
+            const groupClass = filterToGroupMap[f.key] || 'group1';
+            div.classList.add(groupClass);
+            
+            div.innerHTML = `<strong>${f.label}:</strong> ${f.value} <span style="cursor:pointer; margin-left:5px;">×</span>`;
+            div.querySelector('span').addEventListener('click', () => {
+                removeFilter(f.key, f.value);
+            });
+            row.appendChild(div);
+        });
+    } else {
+        const span = document.createElement('span');
+        span.className = 'no-active-filters';
+        span.textContent = 'No filters selected';
+        row.appendChild(span);
+    }
+}
+
+// ฟังก์ชันช่วยสำหรับแสดงชื่อฟิลเตอร์
+function getFilterLabel(key) {
+    const labels = {
+        'DO': 'DO',
+        'MO': 'MO',
+        'section': 'SECTION',
+        'itemName': 'ITEM NAME',
+        'tracefrom': 'Trace From',
+        'traceBy': 'Trace By',
+        'traceByValue': 'Trace By Value',
+        'process': 'Process',
+        'matlot': 'Matlot',
+        'qa': 'QA',
+        'itemNo': 'Item NO',
+        'model': 'Model',
+        'machine': 'Machine',
+        'remark1': 'Remark 1',
+        'remark2': 'Remark 2',
+        'materail_lot': 'Material Lot',
+        'operator4Search': 'OPERATOR_4',
+        'operatorName4Search': 'OPERATOR NAME_4',
+        'invDateCheckbox': 'Inv Date Columns',
+        'proDateCheckbox': 'Pro Date Columns',
+        'dateCheckbox': 'Date Columns',
+        'qaDateCheckbox': 'QA Date Columns',
+        'NGCheckbox': 'NG Columns',
+        'invdate': 'Inv Date',
+        'prodate': 'Pro Date',
+        'date': 'Date',
+        'qadate': 'QA Date'
+    };
+    return labels[key] || key;
+}
+
+// ---------- Remove a single filter ----------
+function removeFilter(key, value = null) {
+    if (key === 'invdate') {
+        document.getElementById("invdateStart").value = "";
+        document.getElementById("invdateEnd").value = "";
+    } else if (key === 'qadate') {
+        document.getElementById("qadateStart").value = "";
+        document.getElementById("qadateEnd").value = "";
+    } else if (key === 'prodate') {
+        document.getElementById("prodateStart").value = "";
+        document.getElementById("prodateEnd").value = "";
+    } else if (key === 'date') {
+        document.getElementById("dateStart").value = "";
+        document.getElementById("dateEnd").value = "";
+    } else if (key === 'search') {
+        document.getElementById("searchInput").value = "";
+    } else if (key === 'operator4Search') {
+        document.getElementById("operator4Search").value = "";
+    } else if (key === 'operatorName4Search') {
+        document.getElementById("operatorName4Search").value = "";
+    } else if (key === 'invDateCheckbox' || key === 'proDateCheckbox' || key === 'dateCheckbox' || key === 'qaDateCheckbox'|| key === 'NGCheckbox') {
+        document.getElementById(key).checked = false;
+        updateColumnVisibility();
+    } else if (dropdowns[key]) {
+        if (value && dropdowns[key].multiple) {
+            const currentValues = dropdowns[key].getValue();
+            if (Array.isArray(currentValues)) {
+                const newValues = currentValues.filter(v => v !== value);
+                dropdowns[key].setValue(newValues);
+                
+                if (newValues.length === 0) {
+                    dropdowns[key].enable();
+                }
+            }
+        } else {
+            dropdowns[key].clear();
+            dropdowns[key].enable();
+        }
+    }
+
+    updateAllDropdowns();
+    applyFilters();
+    updateActiveFiltersDisplay();
+}
+
+/* ---------- Render & Filter Functions ---------- */
+function renderTraceFromOptions(data) {
+    const columns = Object.keys(data[0]);
+    const lotColumns = columns.filter(c => c.includes("LOT NO."));
+    dropdowns.tracefrom.setOptions(lotColumns);
+}
+
+function renderTraceFromValueOptions(data, column) {
+    if (!column || data.length === 0) return;
+    const uniqueValues = [...new Set(data.map(d => d[column]).filter(v => v && v.trim()))].sort();
+}
+
+function renderSectionOptions(data) {
+    const uniqueSection = [...new Set(data.map(d => d["SECTION"]).filter(v => v && v.trim()))].sort();
+    dropdowns.section.setOptions(uniqueSection);
+}
+
+// แก้ไขฟังก์ชัน renderItemNameOptions ให้มีพารามิเตอร์ครบถ้วน
+function renderItemNameOptions(data, selectedDO = "", selectedMO = "", selectedQA = "", selectedMatlot = "", selectedItemNo = "", selectedModel = "", selectedProcess = "", selectedMachine = "", selectedRemark1 = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // เราไม่ต้องการกรองตาม selectedItemName (ซึ่งคือฟิลด์เดียวกัน) ดังนั้นส่งค่าว่าง
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, "", selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    
+    const uniqueItemName = [...new Set(filteredData.map(d => d["ITEM NAME"]).filter(v => v && v.trim()))].sort();
+    dropdowns.itemName.setOptions(uniqueItemName);
+}
+
+function renderTraceByOptions(data, column) {
+    let previousValue = dropdowns.traceByValue.getValue();
+    
+    if (!column || data.length === 0) {
+        dropdowns.traceByValue.clear();
+        dropdowns.traceByValue.disable();
+        return;
+    }
+
+    const uniqueValues = [...new Set(data.map(d => d[column]).filter(v => v && v.trim()))].sort();
+
+    if (uniqueValues.length > 0) {
+        // เก็บค่าที่เลือกไว้ก่อน setOptions ใหม่
+        const currentSelected = dropdowns.traceByValue.getValue();
+        
+        dropdowns.traceByValue.setOptions(uniqueValues);
+        dropdowns.traceByValue.enable();
+
+        // คืนค่าที่เลือกไว้ทั้งหมด
+        if (currentSelected && Array.isArray(currentSelected) && currentSelected.length > 0) {
+            // กรองเฉพาะค่าที่ยังอยู่ใน options ใหม่
+            const preservedValues = currentSelected.filter(v => uniqueValues.includes(v));
+            dropdowns.traceByValue.setValue(preservedValues);
+        }
+        // ถ้ามี previousValue จากก่อนหน้า และไม่มีค่าปัจจุบัน
+        else if (previousValue && Array.isArray(previousValue) && previousValue.length > 0) {
+            const preservedValues = previousValue.filter(v => uniqueValues.includes(v));
+            dropdowns.traceByValue.setValue(preservedValues);
+        }
+        // สำหรับกรณีเปลี่ยนจาก single เป็น multiple - ถ้ามีค่าเดี่ยวให้แปลงเป็น array
+        else if (previousValue && !Array.isArray(previousValue) && uniqueValues.includes(previousValue)) {
+            dropdowns.traceByValue.setValue([previousValue]);
+        }
+    } else {
+        dropdowns.traceByValue.clear();
+        dropdowns.traceByValue.disable();
+    }
+}
+
+function renderDOOptions(data, selectedMO = "", selectedQA = "", selectedMatlot = "", selectedItemNo = "", selectedItemName = "", selectedModel = "", selectedProcess = "", selectedMachine = "", selectedRemark1 = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedDO (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, "", selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    
+    const uniqueDO = [...new Set(filteredData.map(d => d["INVOICE"]).filter(v => v && v.trim()))].sort();
+    dropdowns.DO.setOptions(uniqueDO);
+}
+
+function renderMOOptions(data, selectedDO = "", selectedQA = "", selectedMatlot = "", selectedItemNo = "", selectedItemName = "", selectedModel = "", selectedProcess = "", selectedMachine = "", selectedRemark1 = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedMO (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, "", selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    
+    const uniqueMO = [...new Set(filteredData.map(d => d["M/O NO."]).filter(v => v && v.trim()))].sort();
+    dropdowns.MO.setOptions(uniqueMO);
+}
+
+function renderQAOptions(data, selectedDO = "", selectedMO = "", selectedMatlot = "", selectedItemNo = "", selectedItemName = "", selectedModel = "", selectedProcess = "", selectedMachine = "", selectedRemark1 = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedQA (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, "", selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    
+    const uniqueQA = [...new Set(filteredData.map(d => d["QA/FN NO."]).filter(v => v && v.toString().trim()))].sort();
+    dropdowns.qa.setOptions(uniqueQA);
+}
+
+function renderMatlotOptions(data, selectedDO = "", selectedMO = "", selectedQA = "", selectedItemNo = "", selectedItemName = "", selectedModel = "", selectedProcess = "", selectedMachine = "", selectedRemark1 = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedMatlot (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, selectedQA, "", selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    
+    const uniqueMatlot = [...new Set(filteredData.map(d => d["MATLOT"]).filter(v => v && v.toString().trim()))].sort();
+    dropdowns.matlot.setOptions(uniqueMatlot);
+}
+
+function renderItemNoOptions(data, selectedDO = "", selectedMO = "", selectedQA = "", selectedMatlot = "", selectedItemName = "", selectedModel = "", selectedProcess = "", selectedMachine = "", selectedRemark1 = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedItemNo (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, selectedQA, selectedMatlot, "", selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    
+    const uniqueItemNo = [...new Set(filteredData.map(d => d["ITEM NO."]).filter(v => v && v.toString().trim()))].sort();
+    dropdowns.itemNo.setOptions(uniqueItemNo);
+}
+
+function renderModelOptions(data, selectedDO = "", selectedMO = "", selectedQA = "", selectedMatlot = "", selectedItemNo = "", selectedItemName = "", selectedProcess = "", selectedMachine = "", selectedRemark1 = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedModel (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, "", selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    
+    const uniqueModel = [...new Set(filteredData.map(d => d["MODEL"]).filter(v => v && v.toString().trim()))].sort();
+    dropdowns.model.setOptions(uniqueModel);
+}
+
+function renderProcessOptions(data, selectedDO = "", selectedMO = "", selectedQA = "", selectedMatlot = "", selectedItemNo = "", selectedItemName = "", selectedModel = "", selectedMachine = "", selectedRemark1 = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedProcess (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, "", selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot);
+    
+    const uniqueProcess = [...new Set(filteredData.map(d => d["PROCESS"]).filter(v => v && v.toString().trim()))].sort();
+    dropdowns.process.setOptions(uniqueProcess);
+}
+
+function renderMachineOptions(data, selectedDO = "", selectedMO = "", selectedQA = "", selectedMatlot = "", selectedItemNo = "", selectedItemName = "", selectedModel = "", selectedProcess = "", selectedRemark1 = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedMachine (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, "", selectedRemark1, selectedRemark2, selectedMaterialLot);
+    
+    const uniqueMachine = [...new Set(filteredData.map(d => d["MACHINE"]).filter(v => v && v.toString().trim()))].sort();
+    dropdowns.machine.setOptions(uniqueMachine);
+}
+
+function renderRemark1Options(data, selectedDO = "", selectedMO = "", selectedQA = "", selectedMatlot = "", selectedItemNo = "", selectedItemName = "", selectedModel = "", selectedProcess = "", selectedMachine = "", selectedRemark2 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedRemark1 (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, "", selectedRemark2, selectedMaterialLot);
+    
+    const uniqueRemark1 = [...new Set(filteredData.map(d => d["REMARK#1"]).filter(v => v && v.toString().trim()))].sort();
+    dropdowns.remark1.setOptions(uniqueRemark1);
+}
+
+function renderRemark2Options(data, selectedDO = "", selectedMO = "", selectedQA = "", selectedMatlot = "", selectedItemNo = "", selectedItemName = "", selectedModel = "", selectedProcess = "", selectedMachine = "", selectedRemark1 = "", selectedMaterialLot = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedRemark2 (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, "", selectedMaterialLot);
+    
+    const uniqueRemark2 = [...new Set(filteredData.map(d => d["REMARK#2"]).filter(v => v && v.toString().trim()))].sort();
+    dropdowns.remark2.setOptions(uniqueRemark2);
+}
+
+function renderMaterialLotOptions(data, selectedDO = "", selectedMO = "", selectedQA = "", selectedMatlot = "", selectedItemNo = "", selectedItemName = "", selectedModel = "", selectedProcess = "", selectedMachine = "", selectedRemark1 = "", selectedRemark2 = "") {
+    let filteredData = data;
+    
+    // กรองข้อมูลตามฟิลเตอร์ต่างๆ ที่เลือก แต่ไม่กรองตาม selectedMaterialLot (ส่งค่าว่าง)
+    filteredData = filterDataBySelections(filteredData, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, "");
+    
+    const uniqueMaterialLot = [...new Set(filteredData.map(d => d["MATERIAL LOT"]).filter(v => v && v.toString().trim()))].sort();
+    dropdowns.materail_lot.setOptions(uniqueMaterialLot);
+}
+
+// ---------- Helper Function to Filter Data ----------
+function filterDataBySelections(data, selectedDO, selectedMO, selectedQA, selectedMatlot, selectedItemNo, selectedItemName, selectedModel, selectedProcess, selectedMachine, selectedRemark1, selectedRemark2, selectedMaterialLot) {
+    let filteredData = data;
+    
+    // กรองข้อมูลตาม DO ที่เลือก (ถ้ามี)
+    if (selectedDO && (Array.isArray(selectedDO) && selectedDO.length > 0)) {
+        filteredData = filteredData.filter(d => selectedDO.includes(d["INVOICE"]));
+    } else if (selectedDO && !Array.isArray(selectedDO) && selectedDO !== "") {
+        filteredData = filteredData.filter(d => d["INVOICE"] === selectedDO);
+    }
+    
+    // กรองข้อมูลตาม MO ที่เลือก (ถ้ามี)
+    if (selectedMO && (Array.isArray(selectedMO) && selectedMO.length > 0)) {
+        filteredData = filteredData.filter(d => selectedMO.includes(d["M/O NO."]));
+    } else if (selectedMO && !Array.isArray(selectedMO) && selectedMO !== "") {
+        filteredData = filteredData.filter(d => d["M/O NO."] === selectedMO);
+    }
+    
+    // กรองข้อมูลตาม QA ที่เลือก (ถ้ามี)
+    if (selectedQA && (Array.isArray(selectedQA) && selectedQA.length > 0)) {
+        filteredData = filteredData.filter(d => selectedQA.includes(d["QA/FN NO."]));
+    } else if (selectedQA && !Array.isArray(selectedQA) && selectedQA !== "") {
+        filteredData = filteredData.filter(d => d["QA/FN NO."] === selectedQA);
+    }
+    
+    // กรองข้อมูลตาม Matlot ที่เลือก (ถ้ามี)
+    if (selectedMatlot && (Array.isArray(selectedMatlot) && selectedMatlot.length > 0)) {
+        filteredData = filteredData.filter(d => selectedMatlot.includes(d["MATLOT"]));
+    } else if (selectedMatlot && !Array.isArray(selectedMatlot) && selectedMatlot !== "") {
+        filteredData = filteredData.filter(d => d["MATLOT"] === selectedMatlot);
+    }
+    
+    // กรองข้อมูลตาม Item NO ที่เลือก (ถ้ามี)
+    if (selectedItemNo && (Array.isArray(selectedItemNo) && selectedItemNo.length > 0)) {
+        filteredData = filteredData.filter(d => selectedItemNo.includes(d["ITEM NO."]));
+    } else if (selectedItemNo && !Array.isArray(selectedItemNo) && selectedItemNo !== "") {
+        filteredData = filteredData.filter(d => d["ITEM NO."] === selectedItemNo);
+    }
+    
+    // กรองข้อมูลตาม Item Name ที่เลือก (ถ้ามี)
+    if (selectedItemName && (Array.isArray(selectedItemName) && selectedItemName.length > 0)) {
+        filteredData = filteredData.filter(d => selectedItemName.includes(d["ITEM NAME"]));
+    } else if (selectedItemName && !Array.isArray(selectedItemName) && selectedItemName !== "") {
+        filteredData = filteredData.filter(d => d["ITEM NAME"] === selectedItemName);
+    }
+    
+    // กรองข้อมูลตาม Model ที่เลือก (ถ้ามี)
+    if (selectedModel && (Array.isArray(selectedModel) && selectedModel.length > 0)) {
+        filteredData = filteredData.filter(d => selectedModel.includes(d["MODEL"]));
+    } else if (selectedModel && !Array.isArray(selectedModel) && selectedModel !== "") {
+        filteredData = filteredData.filter(d => d["MODEL"] === selectedModel);
+    }
+    
+    // กรองข้อมูลตาม Process ที่เลือก (ถ้ามี)
+    if (selectedProcess && (Array.isArray(selectedProcess) && selectedProcess.length > 0)) {
+        filteredData = filteredData.filter(d => selectedProcess.includes(d["PROCESS"]));
+    } else if (selectedProcess && !Array.isArray(selectedProcess) && selectedProcess !== "") {
+        filteredData = filteredData.filter(d => d["PROCESS"] === selectedProcess);
+    }
+    
+    // กรองข้อมูลตาม Machine ที่เลือก (ถ้ามี)
+    if (selectedMachine && (Array.isArray(selectedMachine) && selectedMachine.length > 0)) {
+        filteredData = filteredData.filter(d => selectedMachine.includes(d["MACHINE"]));
+    } else if (selectedMachine && !Array.isArray(selectedMachine) && selectedMachine !== "") {
+        filteredData = filteredData.filter(d => d["MACHINE"] === selectedMachine);
+    }
+    
+    // กรองข้อมูลตาม Remark 1 ที่เลือก (ถ้ามี)
+    if (selectedRemark1 && (Array.isArray(selectedRemark1) && selectedRemark1.length > 0)) {
+        filteredData = filteredData.filter(d => selectedRemark1.includes(d["REMARK#1"]));
+    } else if (selectedRemark1 && !Array.isArray(selectedRemark1) && selectedRemark1 !== "") {
+        filteredData = filteredData.filter(d => d["REMARK#1"] === selectedRemark1);
+    }
+    
+    // กรองข้อมูลตาม Remark 2 ที่เลือก (ถ้ามี)
+    if (selectedRemark2 && (Array.isArray(selectedRemark2) && selectedRemark2.length > 0)) {
+        filteredData = filteredData.filter(d => selectedRemark2.includes(d["REMARK#2"]));
+    } else if (selectedRemark2 && !Array.isArray(selectedRemark2) && selectedRemark2 !== "") {
+        filteredData = filteredData.filter(d => d["REMARK#2"] === selectedRemark2);
+    }
+    
+    // กรองข้อมูลตาม Material Lot ที่เลือก (ถ้ามี)
+    if (selectedMaterialLot && (Array.isArray(selectedMaterialLot) && selectedMaterialLot.length > 0)) {
+        filteredData = filteredData.filter(d => selectedMaterialLot.includes(d["MATERIAL LOT"]));
+    } else if (selectedMaterialLot && !Array.isArray(selectedMaterialLot) && selectedMaterialLot !== "") {
+        filteredData = filteredData.filter(d => d["MATERIAL LOT"] === selectedMaterialLot);
+    }
+    
+    return filteredData;
+}
+
+// ฟังก์ชันสำหรับจัดการการแสดงคอลัมน์ตาม checkbox วันที่
+function setupDateColumnVisibility() {
+    // เพิ่ม event listeners สำหรับ checkbox วันที่
+    document.getElementById('invDateCheckbox').addEventListener('change', updateColumnVisibility);
+    document.getElementById('proDateCheckbox').addEventListener('change', updateColumnVisibility);
+    document.getElementById('dateCheckbox').addEventListener('change', updateColumnVisibility);
+    document.getElementById('qaDateCheckbox').addEventListener('change', updateColumnVisibility);
+    document.getElementById('NGCheckbox').addEventListener('change', updateColumnVisibility);
+}
+
+// ฟังก์ชันสำหรับอัพเดทการแสดงคอลัมน์ตาม checkbox ที่เลือก
+function updateColumnVisibility() {
+    const columns = Object.keys(rawData[0]);
+    const selectedRanges = [];
+    
+    // ตรวจสอบ checkbox แต่ละตัวและเพิ่มช่วงคอลัมน์ที่เลือก
+    if (document.getElementById('invDateCheckbox').checked) {
+        selectedRanges.push(dateColumnRanges.invDate);
+    }
+    if (document.getElementById('proDateCheckbox').checked) {
+        selectedRanges.push(dateColumnRanges.proDate);
+    }
+    if (document.getElementById('dateCheckbox').checked) {
+        selectedRanges.push(dateColumnRanges.date);
+    }
+    if (document.getElementById('qaDateCheckbox').checked) {
+        selectedRanges.push(dateColumnRanges.qaDate);
+    }
+    if (document.getElementById('NGCheckbox').checked) {
+        selectedRanges.push(dateColumnRanges.NG);  
+    }
+    
+    // ถ้าไม่มี checkbox ถูกเลือก ให้แสดงคอลัมน์ทั้งหมด
+    if (selectedRanges.length === 0) {
+        columns.forEach(col => {
+            columnVisibility[col] = true;
+        });
+    } else {
+        // รวบรวมคอลัมน์ทั้งหมดจากช่วงที่เลือก
+        const visibleColumns = new Set();
+        
+        selectedRanges.forEach(range => {
+            const startIndex = columns.indexOf(range.start);
+            const endIndex = columns.indexOf(range.end);
+            
+            if (startIndex !== -1 && endIndex !== -1) {
+                for (let i = startIndex; i <= endIndex; i++) {
+                    visibleColumns.add(columns[i]);
+                }
+            }
+        });
+        
+        // อัพเดท column visibility
+        columns.forEach(col => {
+            columnVisibility[col] = visibleColumns.has(col);
+        });
+    }
+    
+    applyColumnVisibility();
+    updateActiveFiltersDisplay();
+}
+
+// ฟังก์ชันสำหรับใช้การแสดงคอลัมน์ตาม columnVisibility
+function applyColumnVisibility() {
+    const table = document.getElementById("dataTable");
+    const thead = table.querySelector("thead");
+    const tbody = table.querySelector("tbody");
+    
+    if (!thead || !tbody) return;
+    
+    const headerCells = thead.querySelectorAll("th");
+    const rows = tbody.querySelectorAll("tr");
+    
+    headerCells.forEach((th, index) => {
+        const colName = th.textContent;
+        const shouldShow = columnVisibility[colName] !== false;
+        th.style.display = shouldShow ? '' : 'none';
+        
+        rows.forEach(tr => {
+            const cell = tr.cells[index];
+            if (cell) {
+                cell.style.display = shouldShow ? '' : 'none';
+            }
+        });
+    });
+}
+
+/* ---------- Event Listeners ---------- */
+// เพิ่ม event listeners สำหรับฟิลเตอร์วันที่ทั้งหมด
+document.getElementById("invdateStart").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+document.getElementById("invdateEnd").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+document.getElementById("qadateStart").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+document.getElementById("qadateEnd").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+document.getElementById("prodateStart").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+document.getElementById("prodateEnd").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+document.getElementById("dateStart").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+document.getElementById("dateEnd").addEventListener("change", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+
+document.getElementById("searchInput").addEventListener("input", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+
+// เพิ่ม event listeners สำหรับ search-box ใหม่
+document.getElementById("operator4Search").addEventListener("input", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+
+document.getElementById("operatorName4Search").addEventListener("input", () => {
+    applyFilters();
+    updateActiveFiltersDisplay();
+});
+
+/* ---------- Clear Filters Function ---------- */
+document.getElementById("clearBtn").addEventListener("click", clearFilters);
+
+function clearFilters() {
+    dropdowns.DO.setValue("");
+    dropdowns.MO.clear();
+    dropdowns.section.setValue("");
+    dropdowns.itemName.setValue("");
+
+    dropdowns.tracefrom.setValue("");
+    dropdowns.traceBy.clear();
+    dropdowns.traceByValue.clear();
+    dropdowns.traceByValue.disable();
+    dropdowns.process.clear();
+
+    // เคลียร์ฟิลเตอร์ใหม่ทั้งหมด
+    dropdowns.matlot.clear();
+    dropdowns.qa.clear();
+    dropdowns.itemNo.clear();
+    dropdowns.model.clear();
+    dropdowns.machine.clear();
+    dropdowns.remark1.clear();
+    dropdowns.remark2.clear();
+    dropdowns.materail_lot.clear();
+
+    // เคลียร์ฟิลเตอร์วันที่
+    document.getElementById("invdateStart").value = "";
+    document.getElementById("invdateEnd").value = "";
+    document.getElementById("qadateStart").value = "";
+    document.getElementById("qadateEnd").value = "";
+    document.getElementById("prodateStart").value = "";
+    document.getElementById("prodateEnd").value = "";
+    document.getElementById("dateStart").value = "";
+    document.getElementById("dateEnd").value = "";
+
+    document.getElementById("searchInput").value = "";
+
+    // เคลียร์ search-box ใหม่
+    document.getElementById("operator4Search").value = "";
+    document.getElementById("operatorName4Search").value = "";
+
+    // เคลียร์ checkbox วันที่
+    document.getElementById("invDateCheckbox").checked = false;
+    document.getElementById("qaDateCheckbox").checked = false;
+    document.getElementById("proDateCheckbox").checked = false;
+    document.getElementById("dateCheckbox").checked = false;
+    document.getElementById("NGCheckbox").checked = false;
+
+    filteredData = rawData;
+    renderTable(filteredData);
+    updateAllDropdowns();
+    
+    // รีเซ็ตการแสดงคอลัมน์
+    updateColumnVisibility();
+
+    updateActiveFiltersDisplay();
+}
+
+/* ---------- Filter / Table Functions ---------- */
+function parseDateDMY(dateStr) {
+    if (!dateStr) return null;
+    if (dateStr.includes('/')) { 
+        const p = dateStr.split('/'); 
+        return new Date(p[2], p[1] - 1, p[0]); 
+    } else if (dateStr.includes('-')) { 
+        const p = dateStr.split('-'); 
+        return new Date(p[0], p[1] - 1, p[2]); 
+    }
+    return null;
+}
+
+function inRange(dateStr, start, end) {
+    const d = parseDateDMY(dateStr);
+    if (!d) return false;
+    if (start && d < start) return false;
+    if (end && d > end) return false;
+    return true;
+}
+
+function applyFilters() {
+    const start = parseDateDMY(document.getElementById("dateStart").value);
+    const end = parseDateDMY(document.getElementById("dateEnd").value);
+    const traceFromCol = dropdowns.tracefrom.getValue();
+    const traceCol = dropdowns.traceBy.getValue();
+    const traceVal = dropdowns.traceByValue.getValue();
+    const processCol = dropdowns.process.getValue();
+    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+    const doVal = dropdowns.DO.getValue();
+    const moVal = dropdowns.MO.getValue();
+    const sectionVal = dropdowns.section.getValue();
+    const itemNameVal = dropdowns.itemName.getValue();
+
+    // ฟิลเตอร์ใหม่ทั้งหมด
+    const matlotVal = dropdowns.matlot.getValue();
+    const qaVal = dropdowns.qa.getValue();
+    const itemNoVal = dropdowns.itemNo.getValue();
+    const modelVal = dropdowns.model.getValue();
+    const machineVal = dropdowns.machine.getValue();
+    const remark1Val = dropdowns.remark1.getValue();
+    const remark2Val = dropdowns.remark2.getValue();
+    const materialLotVal = dropdowns.materail_lot.getValue();
+
+    // ฟิลเตอร์วันที่เพิ่มเติม
+    const invStart = parseDateDMY(document.getElementById("invdateStart").value);
+    const invEnd = parseDateDMY(document.getElementById("invdateEnd").value);
+    const qaStart = parseDateDMY(document.getElementById("qadateStart").value);
+    const qaEnd = parseDateDMY(document.getElementById("qadateEnd").value);
+    const proStart = parseDateDMY(document.getElementById("prodateStart").value);
+    const proEnd = parseDateDMY(document.getElementById("prodateEnd").value);
+    
+
+    // ดึงค่าจาก search-box ใหม่
+    const operator4Search = document.getElementById("operator4Search").value.toLowerCase();
+    const operatorName4Search = document.getElementById("operatorName4Search").value.toLowerCase();
+
+    let tempData = rawData;
+    
+    // Date filter
+    if (start || end) {
+        tempData = tempData.filter(d => inRange(d["DATE"], start, end));
+    }
+    
+    // Inv Date filter
+    if (invStart || invEnd) {
+        tempData = tempData.filter(d => inRange(d["INV DATE"], invStart, invEnd));
+    }
+    
+    // Pro Date filter
+    if (proStart || proEnd) {
+        tempData = tempData.filter(d => inRange(d["PRO DATE"], proStart, proEnd));
+    }
+    
+    // QA Date filter
+    if (qaStart || qaEnd) {
+        tempData = tempData.filter(d => inRange(d["QA DATE"], qaStart, qaEnd));
+    }
+    
+    // Trace From filter
+    if (traceFromCol && traceFromCol !== "No Filter") {
+        tempData = tempData.filter(d => d[traceFromCol] && d[traceFromCol].trim());
+    }
+    
+    // Trace By and Trace By Value filters
+    if (traceCol && traceCol !== "No Filter") {
+        const traceVal = dropdowns.traceByValue.getValue();
+        if (traceVal && Array.isArray(traceVal) && traceVal.length > 0) {
+            tempData = tempData.filter(d => traceVal.includes(d[traceCol]));
+        }
+        else if (traceVal && !Array.isArray(traceVal) && traceVal !== "No Filter") {
+            tempData = tempData.filter(d => d[traceCol] === traceVal);
+        }
+    }
+    
+    // Process filter
+    if (processCol && Array.isArray(processCol) && processCol.length > 0) {
+        tempData = tempData.filter(d => processCol.includes(d["PROCESS"]));
+    }
+    else if (processCol && !Array.isArray(processCol) && processCol !== "No Filter") {
+        tempData = tempData.filter(d => d["PROCESS"] === processCol);
+    }
+    
+    // DO filter
+    if (doVal && Array.isArray(doVal) && doVal.length > 0) {
+        tempData = tempData.filter(d => doVal.includes(d["INVOICE"]));
+    }
+    
+    // MO filter
+    if (moVal && Array.isArray(moVal) && moVal.length > 0) {
+        tempData = tempData.filter(d => moVal.includes(d["M/O NO."]));
+    }
+    
+    // SECTION filter
+    if (sectionVal && Array.isArray(sectionVal) && sectionVal.length > 0) {
+        tempData = tempData.filter(d => sectionVal.includes(d["SECTION"]));
+    }
+    
+    // ITEM NAME filter
+    if (itemNameVal && Array.isArray(itemNameVal) && itemNameVal.length > 0) {
+        tempData = tempData.filter(d => itemNameVal.includes(d["ITEM NAME"]));
+    }
+    
+    // Matlot filter
+    if (matlotVal && Array.isArray(matlotVal) && matlotVal.length > 0) {
+        tempData = tempData.filter(d => matlotVal.includes(d["MATLOT"]));
+    }
+    
+    // QA filter
+    if (qaVal && Array.isArray(qaVal) && qaVal.length > 0) {
+        tempData = tempData.filter(d => qaVal.includes(d["QA/FN NO."]));
+    }
+    
+    // Item NO filter
+    if (itemNoVal && Array.isArray(itemNoVal) && itemNoVal.length > 0) {
+        tempData = tempData.filter(d => itemNoVal.includes(d["ITEM NO."]));
+    }
+    
+    // Model filter
+    if (modelVal && Array.isArray(modelVal) && modelVal.length > 0) {
+        tempData = tempData.filter(d => modelVal.includes(d["MODEL"]));
+    }
+    
+    // Machine filter
+    if (machineVal && Array.isArray(machineVal) && machineVal.length > 0) {
+        tempData = tempData.filter(d => machineVal.includes(d["MACHINE"]));
+    }
+    
+    // Remark 1 filter
+    if (remark1Val && Array.isArray(remark1Val) && remark1Val.length > 0) {
+        tempData = tempData.filter(d => remark1Val.includes(d["REMARK#1"]));
+    }
+    
+    // Remark 2 filter
+    if (remark2Val && Array.isArray(remark2Val) && remark2Val.length > 0) {
+        tempData = tempData.filter(d => remark2Val.includes(d["REMARK#2"]));
+    }
+    
+    // Material Lot filter
+    if (materialLotVal && Array.isArray(materialLotVal) && materialLotVal.length > 0) {
+        tempData = tempData.filter(d => materialLotVal.includes(d["MATERIAL LOT"]));
+    }
+    
+    // Search filter - ค้นหาในทุกคอลัมน์
+    if (searchTerm) {
+        tempData = tempData.filter(d => 
+            Object.values(d).some(v => 
+                v && v.toString().toLowerCase().includes(searchTerm)
+            )
+        );
+    }
+    
+    // OPERATOR_4 search filter
+    if (operator4Search) {
+        tempData = tempData.filter(d => 
+            d["OPERATOR_4"] && d["OPERATOR_4"].toString().toLowerCase().includes(operator4Search)
+        );
+    }
+    
+    // OPERATOR NAME_4 search filter
+    if (operatorName4Search) {
+        tempData = tempData.filter(d => 
+            d["OPERATOR NAME_4"] && d["OPERATOR NAME_4"].toString().toLowerCase().includes(operatorName4Search)
+        );
+    }
+    
+    filteredData = tempData;
+    renderTable(filteredData);
+}
+
+function highlightText(text, searchTerm) {
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    return text.replace(regex, `<span class="highlight">$1</span>`);
+}
+
+function renderTable(data) {
+    const table = document.getElementById("dataTable");
+    table.innerHTML = "";
+    if (data.length === 0) { 
+        table.innerHTML = "<tr><td colspan='100%'>NO DATA</td></tr>"; 
+        document.getElementById("summaryBar").innerHTML = ""; 
+        return; 
+    }
+    
+    const columns = Object.keys(data[0]);
+    
+    // สร้าง array สำหรับเก็บกลุ่มของแต่ละคอลัมน์
+    const groupAssignment = new Array(columns.length).fill(null);
+
+    columnGroups.forEach(group => {
+        const startIndex = columns.indexOf(group.start);
+        const endIndex = columns.indexOf(group.end);
+        if (startIndex !== -1 && endIndex !== -1) {
+            for (let i = startIndex; i <= endIndex; i++) {
+                groupAssignment[i] = group;
+            }
+        }
+    });
+    
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    columns.forEach((col, i) => { 
+        const th = document.createElement("th"); 
+        th.textContent = col; 
+        
+        // กำหนดสีหัวตารางตามกลุ่ม
+        const group = groupAssignment[i];
+        if (group) {
+            const groupIndex = columnGroups.findIndex(g => g === group);
+            if (groupIndex !== -1) {
+                th.classList.add(`group${groupIndex+1}-header`);
+            }
+        }
+        
+        headerRow.appendChild(th); 
+    });
+    thead.appendChild(headerRow); 
+    table.appendChild(thead);
+    
+    const tbody = document.createElement("tbody");
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const operator4Search = document.getElementById('operator4Search').value.toLowerCase();
+    const operatorName4Search = document.getElementById('operatorName4Search').value.toLowerCase();
+
+    let firstMatchRow = null;
+    data.forEach(row => {
+        const tr = document.createElement("tr");
+        columns.forEach((col, i) => {
+            const td = document.createElement("td");
+            let value = row[col] || "";
+            
+            // กำหนดสีข้อมูลตามกลุ่ม
+            const group = groupAssignment[i];
+            if (group) {
+                const groupIndex = columnGroups.findIndex(g => g === group);
+                if (groupIndex !== -1) {
+                    td.classList.add(`group${groupIndex+1}-data`);
+                }
+            }
+            
+            // Highlight ตาม search term หลัก (ค้นหาทุกคอลัมน์)
+            if (searchTerm && value.toString().toLowerCase().includes(searchTerm)) {
+                td.innerHTML = highlightText(value.toString(), searchTerm);
+                if (!firstMatchRow) firstMatchRow = tr;
+            } 
+            // Highlight OPERATOR_4
+            else if (col === "OPERATOR_4" && operator4Search && value.toString().toLowerCase().includes(operator4Search)) {
+                td.innerHTML = highlightText(value.toString(), operator4Search);
+                if (!firstMatchRow) firstMatchRow = tr;
+            }
+            // Highlight OPERATOR NAME_4
+            else if (col === "OPERATOR NAME_4" && operatorName4Search && value.toString().toLowerCase().includes(operatorName4Search)) {
+                td.innerHTML = highlightText(value.toString(), operatorName4Search);
+                if (!firstMatchRow) firstMatchRow = tr;
+            }
+            else { 
+                td.textContent = value; 
+            }
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    
+    // ใช้การแสดงคอลัมน์ตามที่ตั้งค่า
+    applyColumnVisibility();
+    
+    renderSummary(data);
+    
+    if (firstMatchRow) { 
+        firstMatchRow.scrollIntoView({ behavior: "smooth", block: "center" }); 
+    }
+}
+
+function renderSummary(data) {
+    if (data.length === 0) {
+        document.getElementById("summaryBar").innerHTML = "";
+        return;
+    }
+
+    const summaryDiv = document.getElementById("summaryBar");
+    summaryDiv.innerHTML = "";
+
+    const parseNumber = (value) => {
+        if (!value && value !== 0) return 0;
+        if (typeof value === 'number') return value;
+        if (typeof value === 'string') {
+            const cleaned = value.replace(/[^\d.-]/g, '');
+            const num = parseFloat(cleaned);
+            return isNaN(num) ? 0 : num;
+        }
+        return 0;
+    };
+
+    const validInvoices = data.map(d => d["INVOICE"]).filter(inv => inv && inv.toString().trim() !== "");
+    const totalDO = new Set(validInvoices).size;
+    
+    const uniqueCombinations = new Map();
+    let totalDOQty = 0;
+    
+    data.forEach(row => {
+        const mo = row["M/O NO."];
+        const itemName = row["ITEM NAME_2"];
+        
+        if (mo && itemName) {
+            const combination = `${mo}-${itemName}`;
+            const qty1 = parseNumber(row["QTY._1"]);
+            
+            if (!uniqueCombinations.has(combination) && qty1 > 0) {
+                uniqueCombinations.set(combination, qty1);
+                totalDOQty += qty1;
+            }
+        }
+    });
+
+    // 2. Last IN QTY: ค่าจากแถวสุดท้ายของ IN QTY.
+    const lastInQtyRow = data.slice().reverse().find(row => {
+        const name = row["IN QTY."];
+        return name && name.toString().trim() !== "";
+    });
+    const lastInQty = lastInQtyRow ? lastInQtyRow["IN QTY."] : "-";
+
+    // 3. GOOD QTY: ค่าจากแถวสุดท้ายของ GOOD QTY.
+    const lastGoodQtyrow = data.slice().reverse().find(row => {
+        const name = row["GOOD QTY."];
+        return name && name.toString().trim() !== "";
+    });
+    const lastGoodQty = lastGoodQtyrow ? lastGoodQtyrow["GOOD QTY."] : "-";
+
+    // 4. NG QTY: ผลรวมของ NG QTY._1
+    const totalNG = data.reduce((sum, row) => sum + parseNumber(row["NG QTY._1"]), 0);
+
+    // 5. MO: นับจำนวน MO ที่ไม่ซ้ำกัน
+    const uniqueMOs = new Set(data.map(d => d["M/O NO."]).filter(mo => mo && mo.toString().trim()));
+    const totalMO = uniqueMOs.size;
+
+    // 6. Last ProcessName: แถวสุดท้ายที่ไม่เป็นช่องว่าง
+    const lastProcessRow = data.slice().reverse().find(row => {
+        const name = row["PROCESS NAME"];
+        return name && name.toString().trim() !== "";
+    });
+    const lastProcessName = lastProcessRow ? lastProcessRow["PROCESS NAME"] : "-";
+
+    // 7.Last NG: แถวสุดท้ายที่ไม่เป็นช่องว่าง
+    const lastNGRow = data.slice().reverse().find(row => {
+        const name = row["NG QTY."];
+        return name && name.toString().trim() !== "";
+    });
+    const lastNG = lastNGRow ? lastNGRow["NG QTY."] : "-";
+
+    const formatNumber = (num) => {
+        return num.toLocaleString('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    };
+
+    const summaryItems = [
+        {label: "DO", value: formatNumber(totalDO)},
+        {label: "MO", value: formatNumber(totalMO)},
+        {label: "DO QTY", value: formatNumber(totalDOQty)},
+        {label: "Last ProcessName", value: lastProcessName},
+        {label: "Total IN QTY", value: formatNumber(lastInQty)},
+        {label: "Last GOOD QTY", value: formatNumber(lastGoodQty)},
+        {label: "Last NG QTY", value: formatNumber(lastNG)},
+        {label: "Total NG", value: formatNumber(totalNG)}
+    ];
+
+    summaryItems.forEach(item => {
+        const box = document.createElement("div");
+        box.className = "summary-box";
+        box.textContent = `${item.label}: ${item.value}`;
+        summaryDiv.appendChild(box);
+    });
+}
+
+// ---------- Initialize Application ----------
+Papa.parse("static/data_masking.csv", {
+    download: true,
+    header: true,
+    complete: function(results) {
+        console.log("CSV loaded successfully:", results);
+        console.log("Data sample:", results.data.slice(0, 3));
+        
+        rawData = results.data.filter(row => {
+            return Object.values(row).some(value => value && value.toString().trim() !== "");
+        });
+        filteredData = rawData;
+        
+        console.log("Filtered rawData:", rawData);
+        
+        // กำหนด column visibility เริ่มต้น
+        const columns = Object.keys(rawData[0]);
+        console.log("All columns in data:", columns);
+        columns.forEach(col => {
+            columnVisibility[col] = true;
+        });
+        
+        initializeDropdowns();
+        
+        // เรียกฟังก์ชัน render options เริ่มต้นสำหรับทุก dropdown
+        updateAllDropdowns();
+        
+        setupDateColumnVisibility();
+        renderTable(filteredData);
+        
+        console.log("All dropdowns initialized and enabled:", dropdowns);
+    },
+    error: function(error) {
+        console.error("Error loading CSV:", error);
+    }
+});
+</script>
+</body>
+</html>
