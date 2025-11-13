@@ -558,7 +558,7 @@ tr:hover td {
 <body>
 <div class="bar">
     <h2>📋Trace Back Data</h2>
-    <img src="/static/minebeamitsumi.png" alt="Logo" class="bar-logo">
+    <img src="./static/minebeamitsumi.png" alt="Logo" class="bar-logo">
 </div>
 
 <div class="sectionbar-wrapper">
@@ -568,7 +568,7 @@ tr:hover td {
             <span class="no-active-filters">No filters selected</span>
         </div>
         <button id="clearBtn">Clear Filters</button>
-        <button id="downloadExcelBtn"><img src="/static/excel.png">Download</button>
+        <button id="downloadExcelBtn"><img src="./static/excel.png" alt="Excel Icon">Download</button>
     </div>
 
     <div class="sectionbar-row2">
@@ -2412,42 +2412,50 @@ function renderSummary(data) {
 }
 
 // ---------- Initialize Application ----------
-Papa.parse("/static/data_masking.csv", {
-    download: true,
-    header: true,
-    complete: function(results) {
-        console.log("CSV loaded successfully:", results);
-        console.log("Data sample:", results.data.slice(0, 3));
-        
-        rawData = results.data.filter(row => {
-            return Object.values(row).some(value => value && value.toString().trim() !== "");
-        });
-        filteredData = rawData;
-        
-        console.log("Filtered rawData:", rawData);
-        
-        // กำหนด column visibility เริ่มต้น
-        const columns = Object.keys(rawData[0]);
-        console.log("All columns in data:", columns);
-        columns.forEach(col => {
-            columnVisibility[col] = true;
-        });
-        
-        initializeDropdowns();
-        
-        // เรียกฟังก์ชัน render options เริ่มต้นสำหรับทุก dropdown
-        updateAllDropdowns();
-        
-        setupDateColumnVisibility();
-        renderTable(filteredData);
-        
-        console.log("All dropdowns initialized and enabled:", dropdowns);
-    },
-    error: function(error) {
-        console.error("Error loading CSV:", error);
-    }
+function loadData() {
+    Papa.parse("./static/data_masking.csv", {
+        download: true,
+        header: true,
+        complete: function(results) {
+            console.log("CSV loaded successfully:", results);
+            console.log("Data sample:", results.data.slice(0, 3));
+            
+            rawData = results.data.filter(row => {
+                return Object.values(row).some(value => value && value.toString().trim() !== "");
+            });
+            filteredData = rawData;
+            
+            console.log("Filtered rawData:", rawData);
+            
+            // กำหนด column visibility เริ่มต้น
+            const columns = Object.keys(rawData[0]);
+            console.log("All columns in data:", columns);
+            columns.forEach(col => {
+                columnVisibility[col] = true;
+            });
+            
+            initializeDropdowns();
+            
+            // เรียกฟังก์ชัน render options เริ่มต้นสำหรับทุก dropdown
+            updateAllDropdowns();
+            
+            setupDateColumnVisibility();
+            renderTable(filteredData);
+            
+            console.log("All dropdowns initialized and enabled:", dropdowns);
+        },
+        error: function(error) {
+            console.error("Error loading CSV:", error);
+            // แสดงข้อความแจ้งเตือนเมื่อไม่พบไฟล์ข้อมูล
+            document.getElementById("tableBody").innerHTML = "<tr><td colspan='100%'>ไม่พบไฟล์ข้อมูล กรุณาตรวจสอบไฟล์ data_masking.csv ในโฟลเดอร์ static</td></tr>";
+        }
+    });
+}
+
+// เริ่มโหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
+document.addEventListener('DOMContentLoaded', function() {
+    loadData();
 });
 </script>
 </body>
-
 </html>
