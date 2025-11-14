@@ -68,7 +68,7 @@ body {
 .active-filter-item.group3 { background-color: rgb(255, 167, 255); color: rgb(95, 95, 95); }
 .active-filter-item.group4 { background-color: rgb(255, 255, 153); color: rgb(95, 95, 95); }
 .active-filter-item.group5 { background-color: rgb(193, 253, 149); color: rgb(95, 95, 95); }
-.active-filter-item.group6 { background-color: rgb(255, 160, 160); }
+.active-filter-item.group6 { background-color: rgb(255, 229, 255); color: rgb(95, 95, 95); }
 .active-filter-item.group7 { background-color: rgb(219, 191, 111); }
 
 /* Sectionbar row2, row3, row4 และ row5 - แบบเลื่อนแนวนอนได้ */
@@ -171,10 +171,10 @@ body {
     flex-shrink: 0;
     transition: all 0.2s ease;
 }
-.filter-group-NG {
+.filter-group-MO_NO {
     display: flex;
     align-items: center;
-    border: 2px solid rgb(242,14,14);
+    border: 2px solid rgb(172, 0, 164);
     border-radius: 6px;
     padding: 4px 8px;
     background-color: #ffffff;
@@ -214,9 +214,9 @@ body {
     background-color: #ffffff;
     border-color: rgb(50, 205, 50);
 }
-.filter-group-NG:hover {
+.filter-group-MO_NO:hover {
     background-color: #ffffff;
-    border-color: rgb(255, 160, 160);
+    border-color: rgb(255, 229, 255);
 }
 .filter-group-Matlot:hover {
     background-color: #ffffff;
@@ -558,7 +558,7 @@ tr:hover td {
 <body>
 <div class="bar">
     <h2>📋Trace Back Data</h2>
-    <img src="./static/minebeamitsumi.png" alt="Logo" class="bar-logo">
+    <img src="static/minebeamitsumi.png" alt="Logo" class="bar-logo">
 </div>
 
 <div class="sectionbar-wrapper">
@@ -568,7 +568,7 @@ tr:hover td {
             <span class="no-active-filters">No filters selected</span>
         </div>
         <button id="clearBtn">Clear Filters</button>
-        <button id="downloadExcelBtn"><img src="./static/excel.png" alt="Excel Icon">Download</button>
+        <button id="downloadExcelBtn"><img src="static/excel.png">Download</button>
     </div>
 
     <div class="sectionbar-row2">
@@ -656,6 +656,14 @@ tr:hover td {
             </div>
         </div>
 
+        <div class="filter-group-MO_NO">
+            <label>🗐M/O NO. :</label>
+              <div class="date-range-group">
+                <input type="checkbox" id="MONO_Checkbox" class="date-checkbox">
+                <label for="MONO_Checkbox">Show</label>
+            </div>
+        </div>
+
         <div class="filter-group-MO">
             <label>📋MO <input type="checkbox" id="proDateCheckbox" class="date-checkbox">
               <label for="proDateCheckbox">Show </label>:
@@ -671,14 +679,6 @@ tr:hover td {
               <div class="date-range-group">
                 <input type="date" id="prodateStart">
                 <input type="date" id="prodateEnd">
-            </div>
-        </div>
-
-        <div class="filter-group-NG">
-            <label>⚠️NG :</label>
-              <div class="date-range-group">
-                <input type="checkbox" id="NGCheckbox" class="date-checkbox">
-                <label for="NGCheckbox">Show</label>
             </div>
         </div>
 
@@ -808,21 +808,21 @@ let columnVisibility = {}; // สำหรับเก็บสถานะก�
 // กำหนดช่วงคอลัมน์สำหรับแต่ละฟิลเตอร์วันที่
 const dateColumnRanges = {
     invDate: { start: 'INVOICE', end: 'OPERATOR NAME' },
-    qaDate: { start: 'QA/FN NO.', end: 'OPERATOR NAME_2' },
-    proDate: { start: 'LEVEL', end: 'OPERATOR NAME_4' },
+    qaDate: { start: 'QA/FN NO.', end: 'OPERATOR NAME_1' },
+    proDate: { start: 'NO.', end: 'NG (%)_1' },
     date: { start: 'MATLOT', end: 'OPERATOR NAME_5' },
-    NG: { start: 'NO', end: 'NG (%)_1' }
+    NG: { start: 'M/O NO.', end: 'OPERATOR NAME_2' }
 };
 
 // กำหนดกลุ่มคอลัมน์และสีสำหรับหัวตารางและข้อมูล
 const columnGroups = [
-    { start: 'INVOICE', end: 'OPERATOR NAME', headerColor: 'rgb(0,32,96)', dataColor: 'rgb(189,215,238)' },
-    { start: 'QA/FN NO.', end: 'OPERATOR NAME_1', headerColor: 'rgb(112,48,160)', dataColor: 'rgb(204,204,255)' },
-    { start: 'M/O NO.', end: 'OPERATOR NAME_2', headerColor: 'rgb(0,102,0)', dataColor: 'rgb(198,224,180)' },
-    { start: 'LEVEL', end: 'OPERATOR NAME_3', headerColor: 'rgb(153,51,0)', dataColor: 'rgb(245,222,179)' },
-    { start: 'NO.', end: 'OPERATOR NAME_4', headerColor: 'rgb(200,0,190)', dataColor: 'rgb(255,229,255)' },
-    { start: 'NO', end: 'NG (%)_1', headerColor: 'rgb(242,4,4)', dataColor: 'rgb(255,218,185)' },
-    { start: 'MATLOT', end: 'OPERATOR NAME_5', headerColor: 'rgb(105,105,105)', dataColor: 'rgb(226,226,226)' }
+    { start: 'INVOICE', end: 'OPERATOR NAME', headerColor: 'rgb(0, 32, 96)', dataColor: 'rgb(189, 215, 238)' },
+    { start: 'QA/FN NO.', end: 'OPERATOR NAME_1', headerColor: 'rgb(112, 48, 160)', dataColor: 'rgb(204, 204, 255)' },
+    { start: 'M/O NO.', end: 'OPERATOR NAME_2', headerColor: 'rgb(172, 0, 164)', dataColor: 'rgb(255, 229, 255)' },
+    { start: 'LEVEL', end: 'OPERATOR NAME_3', headerColor: 'rgb(153, 51, 0)', dataColor: 'rgb(245, 222, 179)' },
+    { start: 'NO.', end: 'OPERATOR NAME_4', headerColor: 'rgb(51, 153, 51)', dataColor: 'rgb(198, 224, 180)' },
+    { start: 'NO', end: 'NG (%)_1', headerColor: 'rgb(242,4,4)', dataColor: 'rgb(255, 218, 185)' },
+    { start: 'MATLOT', end: 'OPERATOR NAME_5', headerColor: 'rgb(105, 105, 105)', dataColor: 'rgb(226, 226, 226)' }
 ];
 
 // Mapping ระหว่างฟิลเตอร์กับกลุ่มข้อมูล
@@ -849,7 +849,7 @@ const filterToGroupMap = {
     'proDateCheckbox': 'group5',
     'dateCheckbox': 'group7',
     'qaDateCheckbox': 'group2',
-    'NGCheckbox': 'group6',
+    'MONO_Checkbox': 'group6',
     'invdate': 'group1',
     'prodate': 'group5',
     'date': 'group7',
@@ -870,7 +870,7 @@ function downloadExcel() {
             return;
         }
 
-        // ตรวจสอบ checkbox วันที่ที่เลือก - เพิ่ม NGCheckbox
+        // ตรวจสอบ checkbox วันที่ที่เลือก - เพิ่ม MONO_Checkbox
         const selectedRanges = [];
         if (document.getElementById('invDateCheckbox').checked) {
             selectedRanges.push(dateColumnRanges.invDate);
@@ -884,7 +884,7 @@ function downloadExcel() {
         if (document.getElementById('dateCheckbox').checked) {
             selectedRanges.push(dateColumnRanges.date);
         }
-        if (document.getElementById('NGCheckbox').checked) {
+        if (document.getElementById('MONO_Checkbox').checked) {
             selectedRanges.push(dateColumnRanges.NG);  // เพิ่มช่วง NG
         }
 
@@ -1440,7 +1440,7 @@ function updateActiveFiltersDisplay() {
         {id: 'proDateCheckbox', label: 'Pro Date Columns', key: 'proDateCheckbox'},
         {id: 'dateCheckbox', label: 'Matlot Date Columns', key: 'dateCheckbox'},
         {id: 'qaDateCheckbox', label: 'QA Date Columns', key: 'qaDateCheckbox'},
-        {id: 'NGCheckbox', label: 'NG Columns', key: 'NGCheckbox'}
+        {id: 'MONO_Checkbox', label: 'MONO_Columns', key: 'MONO_Checkbox'}
     ];
 
     dateCheckboxes.forEach(checkbox => {
@@ -1497,7 +1497,7 @@ function getFilterLabel(key) {
         'proDateCheckbox': 'Pro Date Columns',
         'dateCheckbox': 'Date Columns',
         'qaDateCheckbox': 'QA Date Columns',
-        'NGCheckbox': 'NG Columns',
+        'MONO_Checkbox': 'MONO_Columns',
         'invdate': 'Inv Date',
         'prodate': 'Pro Date',
         'date': 'Date',
@@ -1526,7 +1526,7 @@ function removeFilter(key, value = null) {
         document.getElementById("operator4Search").value = "";
     } else if (key === 'operatorName4Search') {
         document.getElementById("operatorName4Search").value = "";
-    } else if (key === 'invDateCheckbox' || key === 'proDateCheckbox' || key === 'dateCheckbox' || key === 'qaDateCheckbox'|| key === 'NGCheckbox') {
+    } else if (key === 'invDateCheckbox' || key === 'proDateCheckbox' || key === 'dateCheckbox' || key === 'qaDateCheckbox'|| key === 'MONO_Checkbox') {
         document.getElementById(key).checked = false;
         updateColumnVisibility();
     } else if (dropdowns[key]) {
@@ -1826,7 +1826,7 @@ function setupDateColumnVisibility() {
     document.getElementById('proDateCheckbox').addEventListener('change', updateColumnVisibility);
     document.getElementById('dateCheckbox').addEventListener('change', updateColumnVisibility);
     document.getElementById('qaDateCheckbox').addEventListener('change', updateColumnVisibility);
-    document.getElementById('NGCheckbox').addEventListener('change', updateColumnVisibility);
+    document.getElementById('MONO_Checkbox').addEventListener('change', updateColumnVisibility);
 }
 
 // ฟังก์ชันสำหรับอัพเดทการแสดงคอลัมน์ตาม checkbox ที่เลือก
@@ -1847,7 +1847,7 @@ function updateColumnVisibility() {
     if (document.getElementById('qaDateCheckbox').checked) {
         selectedRanges.push(dateColumnRanges.qaDate);
     }
-    if (document.getElementById('NGCheckbox').checked) {
+    if (document.getElementById('MONO_Checkbox').checked) {
         selectedRanges.push(dateColumnRanges.NG);  
     }
     
@@ -2003,7 +2003,7 @@ function clearFilters() {
     document.getElementById("qaDateCheckbox").checked = false;
     document.getElementById("proDateCheckbox").checked = false;
     document.getElementById("dateCheckbox").checked = false;
-    document.getElementById("NGCheckbox").checked = false;
+    document.getElementById("MONO_Checkbox").checked = false;
 
     filteredData = rawData;
     renderTable(filteredData);
@@ -2395,9 +2395,9 @@ function renderSummary(data) {
     const summaryItems = [
         {label: "DO", value: formatNumber(totalDO)},
         {label: "MO", value: formatNumber(totalMO)},
-        {label: "DO QTY", value: formatNumber(totalDOQty)},
+        {label: "MO QTY", value: formatNumber(totalDOQty)},
         {label: "Last ProcessName", value: lastProcessName},
-        {label: "Total IN QTY", value: formatNumber(lastInQty)},
+        {label: "Last IN QTY", value: formatNumber(lastInQty)},
         {label: "Last GOOD QTY", value: formatNumber(lastGoodQty)},
         {label: "Last NG QTY", value: formatNumber(lastNG)},
         {label: "Total NG", value: formatNumber(totalNG)}
@@ -2412,52 +2412,41 @@ function renderSummary(data) {
 }
 
 // ---------- Initialize Application ----------
-function loadData() {
-    Papa.parse("./static/Mockup data.csv", {
-        download: true,
-        header: true,
-        complete: function(results) {
-            console.log("CSV loaded successfully:", results);
-            console.log("Data sample:", results.data.slice(0, 3));
-            
-            rawData = results.data.filter(row => {
-                return Object.values(row).some(value => value && value.toString().trim() !== "");
-            });
-            filteredData = rawData;
-            
-            console.log("Filtered rawData:", rawData);
-            
-            // กำหนด column visibility เริ่มต้น
-            const columns = Object.keys(rawData[0]);
-            console.log("All columns in data:", columns);
-            columns.forEach(col => {
-                columnVisibility[col] = true;
-            });
-            
-            initializeDropdowns();
-            
-            // เรียกฟังก์ชัน render options เริ่มต้นสำหรับทุก dropdown
-            updateAllDropdowns();
-            
-            setupDateColumnVisibility();
-            renderTable(filteredData);
-            
-            console.log("All dropdowns initialized and enabled:", dropdowns);
-        },
-        error: function(error) {
-            console.error("Error loading CSV:", error);
-            // แสดงข้อความแจ้งเตือนเมื่อไม่พบไฟล์ข้อมูล
-            document.getElementById("tableBody").innerHTML = "<tr><td colspan='100%'>ไม่พบไฟล์ข้อมูล กรุณาตรวจสอบไฟล์ data_masking.csv ในโฟลเดอร์ static</td></tr>";
-        }
-    });
-}
-
-// เริ่มโหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
-document.addEventListener('DOMContentLoaded', function() {
-    loadData();
+Papa.parse("static/Maindata 3.csv", {
+    download: true,
+    header: true,
+    complete: function(results) {
+        console.log("CSV loaded successfully:", results);
+        console.log("Data sample:", results.data.slice(0, 3));
+        
+        rawData = results.data.filter(row => {
+            return Object.values(row).some(value => value && value.toString().trim() !== "");
+        });
+        filteredData = rawData;
+        
+        console.log("Filtered rawData:", rawData);
+        
+        // กำหนด column visibility เริ่มต้น
+        const columns = Object.keys(rawData[0]);
+        console.log("All columns in data:", columns);
+        columns.forEach(col => {
+            columnVisibility[col] = true;
+        });
+        
+        initializeDropdowns();
+        
+        // เรียกฟังก์ชัน render options เริ่มต้นสำหรับทุก dropdown
+        updateAllDropdowns();
+        
+        setupDateColumnVisibility();
+        renderTable(filteredData);
+        
+        console.log("All dropdowns initialized and enabled:", dropdowns);
+    },
+    error: function(error) {
+        console.error("Error loading CSV:", error);
+    }
 });
 </script>
 </body>
 </html>
-
-
