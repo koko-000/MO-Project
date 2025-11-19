@@ -57,7 +57,7 @@ body {
     padding: 4px 10px;
     color: white;
     border-radius: 15px;
-    font-size: 13px;
+    font-size: 14px;
 }
 .no-active-filters { color: #999; font-style: italic; font-size: 14px; }
 
@@ -282,11 +282,11 @@ body {
     border-radius: 4px; 
     background: white; 
     cursor: pointer; 
-    font-size: 14px;
+    font-size: 12px;
     box-sizing: border-box;
 }
 .dropdown-button:hover { background: #f5f5f5; }
-.dropdown-arrow { margin-left: 5px; font-size: 12px; transition: transform 0.2s; }
+.dropdown-arrow { margin-left: 5px; font-size: 11px; transition: transform 0.2s; }
 .dropdown-arrow.open { transform: rotate(180deg); }
 .dropdown-content {
     position: fixed;
@@ -305,7 +305,7 @@ body {
 .dropdown-option { 
     padding: 8px 12px; 
     cursor: pointer; 
-    font-size: 14px; 
+    font-size: 12px; 
     border-bottom: 1px solid #f0f0f0; 
     display: flex;
     align-items: center;
@@ -324,7 +324,7 @@ input[type="date"] {
     padding: 4px 8px; 
     border: 1px solid #ccc; 
     border-radius: 4px; 
-    font-size: 14px; 
+    font-size: 12px; 
 }
 
 /* ---------- Summary ---------- */
@@ -558,6 +558,7 @@ tr:hover td {
 <body>
 <div class="bar">
     <h2>📋Trace Back Data</h2>
+    <img src="static/minebeamitsumi.png" alt="Logo" class="bar-logo">
 </div>
 
 <div class="sectionbar-wrapper">
@@ -664,7 +665,7 @@ tr:hover td {
         </div>
 
         <div class="filter-group-MO">
-            <label>📋MO <input type="checkbox" id="proDateCheckbox" class="date-checkbox">
+            <label>📋Process <input type="checkbox" id="proDateCheckbox" class="date-checkbox">
               <label for="proDateCheckbox">Show </label>:
             </label>
               <div class="searchable-dropdown" id="MO-dropdown">
@@ -1475,7 +1476,7 @@ function updateActiveFiltersDisplay() {
 function getFilterLabel(key) {
     const labels = {
         'DO': 'DO',
-        'MO': 'MO',
+        'MO': 'Process',
         'section': 'SECTION',
         'itemName': 'ITEM NAME',
         'tracefrom': 'Trace From',
@@ -2411,7 +2412,7 @@ function renderSummary(data) {
 }
 
 // ---------- Initialize Application ----------
-Papa.parse("./static/Mockup_data.csv", {
+Papa.parse("static/Mockup_data.csv", {
     download: true,
     header: true,
     complete: function(results) {
@@ -2449,7 +2450,3 @@ Papa.parse("./static/Mockup_data.csv", {
 </script>
 </body>
 </html>
-
-
-
-
